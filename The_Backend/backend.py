@@ -7,7 +7,7 @@ import os
 # Configuration setup
 class Config:
     PROJECT_NAME = "assignment2ych"
-    GOOGLE_CLOUD_KEY_PATH = 'assignment2ych-696f83052e7e.json'
+    GOOGLE_CLOUD_KEY_PATH = 'assignment2ych-cecd53ae457f.json'
     ELASTIC_ENDPOINT = "https://6f8402e9b7ae48f6ad05fb7037960f8a.europe-west9.gcp.elastic-cloud.com:443"
     ELASTIC_API_KEY = "ODhqUDJJNEJFZjlFU080SWh3VFA6YlQyLUM3WENSbk9CSHJTTnBCRW1RZw=="
     INDEX_NAME = "index_of_movies"
