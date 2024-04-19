@@ -1,4 +1,9 @@
 import streamlit as st
+import streamlit as st
+import requests
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+import time
 
 # Setup page configuration
 st.set_page_config(page_title="Movie App", layout="wide")
