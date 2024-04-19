@@ -4,16 +4,17 @@ import requests
 # Function to interact with the Flask backend
 def fetch_data(endpoint):
     base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
-    # Ensure the endpoint string starts with a '/'
     if not endpoint.startswith('/'):
         endpoint = '/' + endpoint
     full_url = f"{base_url}{endpoint}"
     response = requests.get(full_url)
     return response.json()
 
-# Initialize session state for selected movies
+# Initialize session state for selected movies and movie IDs
 if 'selected_movies' not in st.session_state:
     st.session_state['selected_movies'] = []
+if 'movie_ids' not in st.session_state:
+    st.session_state['movie_ids'] = []
 
 # Configure Streamlit page properties
 st.set_page_config(page_title="Movie Selector", layout='wide')
@@ -28,19 +29,21 @@ if search_term:
         if st.button(movie, key=f"btn_{movie}"):
             if movie not in st.session_state['selected_movies']:
                 st.session_state['selected_movies'].append(movie)
+                # Assume a function that fetches movie ID based on title
+                movie_id = fetch_data(f"movie_id/{movie}")
+                st.session_state['movie_ids'].append(movie_id)
                 st.experimental_rerun()
 
 # Sidebar for managing selected movies
-selected_movies = st.session_state.get('selected_movies', [])  # Use .get with default empty list
+selected_movies = st.session_state.get('selected_movies', [])
 if selected_movies:
     st.sidebar.header("Selected Movies")
     for movie in selected_movies:
         if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
-            selected_movies.remove(movie)
+            index = st.session_state['selected_movies'].index(movie)
+            st.session_state['selected_movies'].pop(index)
+            st.session_state['movie_ids'].pop(index)
             st.experimental_rerun()
-    if st.sidebar.button("Get Recommendations"):
-        st.session_state['page'] = 'Recommendations'
-        st.experimental_rerun()
 
 # Custom CSS for button aesthetics
 st.markdown("""
