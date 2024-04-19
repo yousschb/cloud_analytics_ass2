@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Define the base URL for the backend API
-BASE_URL = "https://backenda2-mjz535d2kq-oa.a.run.app/"
+BASE_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
 
 # Helper function to fetch data from the backend
 def fetch_data(endpoint):
