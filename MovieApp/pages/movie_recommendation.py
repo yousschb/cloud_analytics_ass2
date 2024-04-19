@@ -36,40 +36,38 @@ else:
     for movie in st.session_state['selected_movies']:
         st.write(movie)
 
-    # Debugging: Print out raw data from fetch_data to understand the structure
-    movie_ids_raw_data = [fetch_data(f"movie_ids/{movie}") for movie in st.session_state['selected_movies']]
-    st.write("Raw Movie IDs Data:", movie_ids_raw_data)  # Debug output
-
-    # Assuming the structure is corrected based on the actual output
-    selected_movie_ids = [x['movieId'][0] for x in movie_ids_raw_data if x and 'movieId' in x and x['movieId']]
-
+    selected_movie_ids = [fetch_data(f"movie_ids/{movie}") for movie in st.session_state['selected_movies']]
     st.write("Fetched Movie IDs:", selected_movie_ids)
 
     ratings_data = fetch_data("ratings")
     if not ratings_data:
         st.error("Failed to fetch ratings data or data is empty.")
     else:
-        ratings_df = pd.DataFrame(ratings_data)
-        if ratings_df.empty:
-            st.error("Ratings DataFrame is empty.")
-        else:
-            user_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating', fill_value=0)
-            if user_matrix.empty:
-                st.error("User matrix is empty.")
+        try:
+            ratings_df = pd.DataFrame(ratings_data)
+            st.write("Ratings DataFrame:", ratings_df.head())  # Debug output
+            if ratings_df.empty or 'rating_im' not in ratings_df.columns:
+                st.error("Ratings DataFrame is empty or missing 'rating_im'.")
             else:
-                new_user_index = max(user_matrix.index) + 1
-                new_user_row = pd.DataFrame(0, index=[new_user_index], columns=user_matrix.columns)
-                for movie_id in selected_movie_ids:
-                    if movie_id in new_user_row.columns:
-                        new_user_row.loc[new_user_index, movie_id] = 5  # Assuming 5 is a high rating
-
-                similarity = cosine_similarity(new_user_row, user_matrix)
-                similar_users = similarity.argsort()[0][-3:]
-
-                recommendations_df = get_recommendations(similar_users)
-                if not recommendations_df.empty:
-                    st.write("We recommend the following movies based on your preferences:")
-                    for idx, row in recommendations_df.iterrows():
-                        st.write(f"{row['movieId']} - {row['title']}")
+                user_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating_im', fill_value=0)
+                if user_matrix.empty:
+                    st.error("User matrix is empty.")
                 else:
-                    st.write("No recommendations found.")
+                    new_user_index = max(user_matrix.index) + 1
+                    new_user_row = pd.DataFrame(0, index=[new_user_index], columns=user_matrix.columns)
+                    for movie_id in selected_movie_ids:
+                        if movie_id in new_user_row.columns:
+                            new_user_row.loc[new_user_index, movie_id] = 5  # Assuming 5 is a high rating
+
+                    similarity = cosine_similarity(new_user_row, user_matrix)
+                    similar_users = similarity.argsort()[0][-3:]
+
+                    recommendations_df = get_recommendations(similar_users)
+                    if not recommendations_df.empty:
+                        st.write("We recommend the following movies based on your preferences:")
+                        for idx, row in recommendations_df.iterrows():
+                            st.write(f"{row['movieId']} - {row['title']}")
+                    else:
+                        st.write("No recommendations found.")
+        except Exception as e:
+            st.error(f"An error occurred while processing ratings data: {e}")
