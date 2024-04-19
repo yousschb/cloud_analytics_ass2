@@ -3,60 +3,44 @@ import pandas as pd
 import requests
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Constants
-BASE_URL = "https://cloud-analytics-caa2-gev3pcymxa-uc.a.run.app"
-
-def fetch_data(endpoint):
-    """ Fetch data from the Flask backend """
-    response = requests.get(f"{BASE_URL}/{endpoint}")
+# Assuming this function fetches your ratings data correctly
+def fetch_ratings():
+    # Replace this URL with the actual endpoint that returns ratings
+    response = requests.get("https://cloud-analytics-ass20-gev3pcymxa-uc.a.run.app/ratings")
     if response.status_code == 200:
-        return response.json()
+        return pd.read_json(response.text)
     else:
-        return None
+        return pd.DataFrame()  # Return an empty DataFrame if something goes wrong
 
-def get_recommendations(similar_users):
-    """ Fetch recommendations based on similar user IDs """
-    user_ids = ",".join(map(str, similar_users))
-    recommendations_json = fetch_data(f"recommendations/{user_ids}")
-    if recommendations_json:
-        return pd.read_json(recommendations_json)
-    else:
-        return pd.DataFrame()  # Return empty DataFrame if no recommendations
+# Assuming selected_movie_ids is fetched or defined earlier in your code
+selected_movie_ids = st.session_state.get('selected_movies', [])
 
-# Streamlit page configuration
-st.set_page_config(page_title="Movie Recommendations")
-st.title("🎬 Movie Recommendations")
-
-# Check if there are selected movies in session state
-if 'selected_movies' not in st.session_state or not st.session_state['selected_movies']:
-    st.write("No movies selected for recommendations. Please select movies first.")
+# Load ratings data
+ratings_df = fetch_ratings()
+if ratings_df.empty:
+    st.error("Failed to fetch ratings data or data is empty.")
 else:
-    # Display selected movies
-    st.write("You have selected the following movies:")
-    for movie in st.session_state['selected_movies']:
-        st.write(movie)
-
-    # Assuming each movie title maps to a unique movieId as a simplification
-    selected_movie_ids = [fetch_data(f"movie_ids/{movie}") for movie in st.session_state['selected_movies']]
-
-    # Fetch ratings data and construct user matrix
-    ratings_df = pd.DataFrame(fetch_data("ratings"), columns=['userId', 'movieId', 'rating'])
     user_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating', fill_value=0)
 
-    # Create a new user profile based on selected movies
-    new_user_row = pd.DataFrame(0, index=[max(user_matrix.index) + 1], columns=user_matrix.columns)
-    for movie_id in selected_movie_ids:
-        new_user_row.loc[:, movie_id] = 5  # Assuming 5 is a high rating
-
-    # Calculate cosine similarity between the new user and existing users
-    similarity = cosine_similarity(new_user_row, user_matrix)
-    similar_users = similarity.argsort()[0][-3:]  # Top 3 similar users
-
-    # Fetch recommendations for similar users
-    recommendations_df = get_recommendations(similar_users)
-    if not recommendations_df.empty:
-        st.write("We recommend the following movies based on your preferences:")
-        for idx, row in recommendations_df.iterrows():
-            st.write(f"{row['movieId']} - {row['title']}")
+    # Check if the user matrix is empty
+    if user_matrix.empty or user_matrix.index.empty:
+        st.error("User matrix is empty. Unable to proceed with recommendations.")
     else:
-        st.write("No recommendations found.")
+        # Assuming a new user profile needs to be created
+        new_user_index = max(user_matrix.index) + 1
+        new_user_row = pd.DataFrame(0, index=[new_user_index], columns=user_matrix.columns)
+        
+        # Setting high ratings for selected movies
+        for movie_id in selected_movie_ids:
+            if movie_id in new_user_row.columns:
+                new_user_row.loc[new_user_index, movie_id] = 5  # Assuming 5 is a high rating
+
+        # Calculate cosine similarity between the new user and existing users
+        similarity = cosine_similarity(new_user_row, user_matrix)
+        most_similar_users = similarity.argsort()[0][-3:]  # Get the top 3 similar users
+
+        # Example logic to display something based on the most similar users
+        if most_similar_users.size > 0:
+            st.write("Most similar users IDs:", most_similar_users)
+        else:
+            st.error("No similar users found.")
