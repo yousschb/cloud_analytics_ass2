@@ -13,7 +13,7 @@ INDEX_NAME = "index_of_movies"
 
 # Configuration de l'environnement pour Google Cloud BigQuery
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_KEY_PATH
-bigquery_client = bigquery.Client(project=PROJECT_NAME)
+client = bigquery.Client(project=PROJECT_NAME)
 
 # Configuration du client Elasticsearch
 elastic_client = Elasticsearch(
