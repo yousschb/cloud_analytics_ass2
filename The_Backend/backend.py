@@ -133,8 +133,17 @@ def elastic_search(query):
                     "max_expansions": 10
                 }
             }
-        },
+        }
     }
+    try:
+        # Exécuter la recherche sur Elasticsearch
+        response = elastic_client.search(index=INDEX_NAME, body=body)
+        # Extraire les titres des résultats de recherche
+        titles = [hit['_source']['title'] for hit in response['hits']['hits']]
+        return jsonify(titles)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+        
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
