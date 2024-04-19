@@ -37,15 +37,18 @@ def home():
         "/movie_titles/<movie_id>": "Afficher le titre d'un film par ID",
         "/ratings": "Afficher les évaluations",
         "/recommendations/<user_ids>": "Afficher les recommandations pour les utilisateurs",
-        "/search/<query>": "Rechercher des films par titre"
+        "/elastic_search/<query>": "Rechercher des films par titre"
     }
 
     # Construire le HTML pour les liens
     html = "<h1>Bienvenue à l'API de films</h1>"
     html += "<ul>"
     for path, description in routes.items():
-        link = f'http://127.0.0.1:8080{path}'
-        html += f'<li><a href="{link}">{path}</a> - {description}</li>'
+        if path in ["/movie_titles", "/movie_ids", "/ratings"]:
+            link = f'http://127.0.0.1:8080{path}'
+            html += f'<li><a href="{link}">{path}</a> - {description}</li>'
+        else:
+            html += f'<li>{path} - {description}</li>'
     html += "</ul>"
     
     return html
