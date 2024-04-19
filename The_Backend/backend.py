@@ -100,8 +100,31 @@ def recommendations(user_ids):
     return results.to_json()
 
 
-@app.route('/search/<query>')
-def search(query):
+@app.route('/title_from_id/<movie_id>')
+def title_from_id(movie_id):
+    """Return the title of a movie based on its ID."""
+    query = f"""
+            SELECT m.title
+            FROM `{PROJECT_NAME}.{DATASET}.movies` m
+            WHERE m.movieId = {movie_id}
+            """
+    result = execute_query(query)
+    return result.to_json()
+
+@app.route('/tmdb_id/<movie_id>')
+def tmdb_id(movie_id):
+    """Return the TMDB ID of a movie based on its movie ID."""
+    query = f"""
+            SELECT l.tmdbId
+            FROM `{PROJECT_NAME}.{DATASET}.links` l
+            WHERE l.movieId = {movie_id}
+            """
+    result = execute_query(query)
+    return result.to_json()
+
+@app.route('/elastic_search/<query>')
+def elastic_search(query):
+    """Perform an elastic search for a given query."""
     body = {
         "query": {
             "match_phrase_prefix": {
@@ -110,10 +133,8 @@ def search(query):
                     "max_expansions": 10
                 }
             }
-        }
+        },
     }
-    response = elastic_client.search(index=INDEX_NAME, body=body)
-    return jsonify([hit['_source']['title'] for hit in response['hits']['hits']])
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
