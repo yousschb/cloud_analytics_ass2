@@ -1,39 +1,76 @@
 import streamlit as st
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
 import requests
+import time
 
+# Define API URL and Key
+API_KEY = "?api_key=81eb26f048683218d8f96f9fab8e8c52"
+TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/"
+BACKEND_URL = "https://backenda2-mjz535d2kq-oa.a.run.app/"
+
+# Setup Streamlit page
+st.set_page_config(page_title="Movie Recommendations", layout="wide")
+st.title("🎥 Movie Recommendations")
+
+# Function to fetch data from backend
 def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
-    if not endpoint.startswith('/'):
-        endpoint = '/' + endpoint
-    full_url = f"{base_url}{endpoint}"
-    response = requests.get(full_url)
-    return response.json()
+    response = requests.get(BACKEND_URL + endpoint)
+    if response.ok:
+        return response.json()
+    else:
+        st.error(f"Failed to fetch data: {response.text}")
+        return None
 
-# Initialize session state for selected movies and movie IDs
-if 'selected_movies' not in st.session_state:
+# Display selected movies in sidebar
+if 'selected_movies' in st.session_state and st.session_state["selected_movies"]:
+    st.sidebar.write("You have selected these movies:")
+    for movie in st.session_state["selected_movies"]:
+        st.sidebar.write(movie)
+else:
+    st.sidebar.write("You have not selected any movies yet.")
+
+# Button to generate recommendations
+if st.button("Get Recommendations"):
+    if 'movie_ids' in st.session_state and st.session_state['movie_ids']:
+        # Construct a new user preference matrix
+        ratings_data = fetch_data("rating_df")
+        if ratings_data:
+            user_ratings = pd.DataFrame(ratings_data, columns=['userId', 'movieId', 'rating_im'])
+            user_matrix = user_ratings.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
+
+            new_user_ratings = pd.Series(0, index=user_matrix.columns)
+            for mid in st.session_state['movie_ids']:
+                if mid in new_user_ratings.index:
+                    new_user_ratings[mid] = 5  # Assuming maximum preference
+
+            # Compute cosine similarity
+            user_similarity = cosine_similarity([new_user_ratings], user_matrix)
+            similar_users = user_similarity.argsort()[0][-3:]  # Top 3 similar users
+
+            # Fetch and display recommendations
+            recommended_ids = fetch_data(f"reco/{'/'.join(map(str, similar_users))}")
+            if recommended_ids:
+                recommended_movies = pd.DataFrame(recommended_ids, columns=['movieId', 'predicted_rating_im_confidence']).head(5)
+
+                st.write("Based on the movies you selected, we recommend you to watch these movies:")
+                for mid in recommended_movies['movieId']:
+                    movie_details = fetch_data(f"title_from_id/{mid}")
+                    if movie_details:
+                        with st.expander(movie_details['title']):
+                            movie_info = requests.get(f"{TMDB_BASE_URL}{mid}{API_KEY}").json()
+                            st.image(f"https://image.tmdb.org/t/p/original{movie_info['poster_path']}")
+                            st.write(f"Overview: {movie_info['overview']}")
+                    else:
+                        st.error("Failed to fetch movie details.")
+            else:
+                st.error("Failed to retrieve recommendations.")
+        else:
+            st.error("Failed to retrieve user ratings data.")
+    else:
+        st.error("No movies selected for recommendations. Please select some movies first.")
+
+# Reset button
+if st.button("Reset Selection"):
     st.session_state['selected_movies'] = []
-if 'movie_ids' not in st.session_state:
     st.session_state['movie_ids'] = []
-
-st.set_page_config(page_title="Movie Selector", layout='wide')
-st.title("🎬 Movie Selector Interface")
-
-search_term = st.text_input("Type to search for movies:", placeholder="Start typing...")
-if search_term:
-    search_results = fetch_data(f"elastic_search/{search_term}")
-    for movie in search_results:
-        if st.button(movie, key=f"btn_{movie}"):
-            if movie not in st.session_state['selected_movies']:
-                st.session_state['selected_movies'].append(movie)
-                movie_id = fetch_data(f"movie_id/{movie}")  # Assuming this returns an ID
-                st.session_state['movie_ids'].append(movie_id)
-                st.experimental_rerun()
-
-st.sidebar.header("Selected Movies")
-for idx, movie in enumerate(st.session_state.get('selected_movies', [])):
-    if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
-        st.session_state.selected_movies.pop(idx)
-        st.session_state.movie_ids.pop(idx)  # Remove corresponding ID
-        st.experimental_rerun()
-
-st.write("Debug: Selected IDs", st.session_state['movie_ids'])  # Debug output
