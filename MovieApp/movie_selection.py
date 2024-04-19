@@ -4,6 +4,8 @@ import requests
 # Function to interact with the Flask backend
 def fetch_data(endpoint):
     base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
+    if not endpoint.startswith('/'):
+        endpoint = '/' + endpoint
     full_url = f"{base_url}{endpoint}"
     response = requests.get(full_url)
     return response.json()
