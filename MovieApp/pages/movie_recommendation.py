@@ -2,75 +2,59 @@ import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 import requests
-import time
 
-# Define API URL and Key
-API_KEY = "?api_key=81eb26f048683218d8f96f9fab8e8c52"
+API_KEY = "81eb26f048683218d8f96f9fab8e8c52"
 TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/"
-BACKEND_URL = "https://backenda2-mjz535d2kq-oa.a.run.app/"
+BASE_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
 
-# Setup Streamlit page
-st.set_page_config(page_title="Movie Recommendations", layout="wide")
-st.title("🎥 Movie Recommendations")
-
-# Function to fetch data from backend
 def fetch_data(endpoint):
-    response = requests.get(BACKEND_URL + endpoint)
+    response = requests.get(BASE_URL + endpoint)
     if response.ok:
         return response.json()
-    else:
-        st.error(f"Failed to fetch data: {response.text}")
-        return None
+    st.error("Failed to fetch data from the backend.")
+    return []
 
-# Display selected movies in sidebar
-if 'selected_movies' in st.session_state and st.session_state["selected_movies"]:
-    st.sidebar.write("You have selected these movies:")
-    for movie in st.session_state["selected_movies"]:
+st.set_page_config(page_title="Movie Recommendations", layout='wide')
+st.title("🎥 Movie Recommendations")
+
+# Display selected movies
+if 'selected_movies' in st.session_state and st.session_state['selected_movies']:
+    st.sidebar.write("Selected Movies:")
+    for movie in st.session_state['selected_movies']:
         st.sidebar.write(movie)
 else:
     st.sidebar.write("You have not selected any movies yet.")
 
-# Button to generate recommendations
+# Generate and display recommendations
 if st.button("Get Recommendations"):
     if 'movie_ids' in st.session_state and st.session_state['movie_ids']:
-        # Construct a new user preference matrix
-        ratings_data = fetch_data("rating_df")
-        if ratings_data:
-            user_ratings = pd.DataFrame(ratings_data, columns=['userId', 'movieId', 'rating_im'])
-            user_matrix = user_ratings.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
+        ratings = fetch_data("rating_df")
+        user_ratings = pd.DataFrame(ratings, columns=['userId', 'movieId', 'rating_im'])
+        user_matrix = user_ratings.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
 
-            new_user_ratings = pd.Series(0, index=user_matrix.columns)
-            for mid in st.session_state['movie_ids']:
-                if mid in new_user_ratings.index:
-                    new_user_ratings[mid] = 5  # Assuming maximum preference
+        user_prefs = pd.Series(0, index=user_matrix.columns)
+        for movie_id in st.session_state['movie_ids']:
+            if movie_id in user_prefs.index:
+                user_prefs[movie_id] = 5
 
-            # Compute cosine similarity
-            user_similarity = cosine_similarity([new_user_ratings], user_matrix)
-            similar_users = user_similarity.argsort()[0][-3:]  # Top 3 similar users
+        similarity = cosine_similarity([user_prefs], user_matrix)
+        top_users = similarity.argsort()[0][-3:]  # get indices of top 3 similar users
 
-            # Fetch and display recommendations
-            recommended_ids = fetch_data(f"reco/{'/'.join(map(str, similar_users))}")
-            if recommended_ids:
-                recommended_movies = pd.DataFrame(recommended_ids, columns=['movieId', 'predicted_rating_im_confidence']).head(5)
+        reco_data = fetch_data(f"reco/{'/'.join(map(str, top_users))}")
+        recommended_movies = pd.DataFrame(reco_data, columns=['movieId', 'predicted_rating_im_confidence']).head(5)
 
-                st.write("Based on the movies you selected, we recommend you to watch these movies:")
-                for mid in recommended_movies['movieId']:
-                    movie_details = fetch_data(f"title_from_id/{mid}")
-                    if movie_details:
-                        with st.expander(movie_details['title']):
-                            movie_info = requests.get(f"{TMDB_BASE_URL}{mid}{API_KEY}").json()
-                            st.image(f"https://image.tmdb.org/t/p/original{movie_info['poster_path']}")
-                            st.write(f"Overview: {movie_info['overview']}")
-                    else:
-                        st.error("Failed to fetch movie details.")
-            else:
-                st.error("Failed to retrieve recommendations.")
-        else:
-            st.error("Failed to retrieve user ratings data.")
+        st.write("We recommend the following movies based on your selections:")
+        for movie_id in recommended_movies['movieId']:
+            details = fetch_data(f"title_from_id/{movie_id}")
+            if details:
+                movie_info = requests.get(f"{TMDB_BASE_URL}{movie_id}{API_KEY}").json()
+                with st.expander(details['title']):
+                    st.image(f"{TMDB_BASE_URL}original{movie_info['poster_path']}", width=320)
+                    st.write(f"Overview: {movie_info['overview']}")
     else:
-        st.error("No movies selected for recommendations. Please select some movies first.")
+        st.error("Please select some movies first.")
 
-# Reset button
+# Reset selection
 if st.button("Reset Selection"):
     st.session_state['selected_movies'] = []
     st.session_state['movie_ids'] = []
