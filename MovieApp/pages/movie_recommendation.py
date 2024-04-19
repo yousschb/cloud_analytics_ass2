@@ -18,13 +18,13 @@ def fetch_data(endpoint):
 def get_recommendations(similar_users):
     """ Fetch recommendations based on similar user IDs """
     if not similar_users:
-        return pd.DataFrame()  # Return an empty DataFrame if no users to fetch for
+        return pd.DataFrame()
     user_ids = ",".join(map(str, similar_users))
     recommendations_json = fetch_data(f"recommendations/{user_ids}")
     if recommendations_json:
         return pd.read_json(recommendations_json)
     else:
-        return pd.DataFrame()  # Return empty DataFrame if no recommendations
+        return pd.DataFrame()
 
 # Streamlit page configuration
 st.set_page_config(page_title="Movie Recommendations")
@@ -38,6 +38,8 @@ else:
         st.write(movie)
 
     selected_movie_ids = [fetch_data(f"movie_ids/{movie}") for movie in st.session_state['selected_movies']]
+    st.write("Fetched Movie IDs:", selected_movie_ids)  # Debugging output
+
     if any(x is None for x in selected_movie_ids):
         st.error("Some movie IDs could not be fetched. Please check the movie titles.")
     else:
@@ -49,6 +51,7 @@ else:
             if ratings_df.empty:
                 st.error("Ratings data is empty.")
             else:
+                st.write("Ratings DataFrame:", ratings_df.head())  # Debugging output
                 user_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating', fill_value=0)
                 if user_matrix.empty or user_matrix.index.empty:
                     st.error("User matrix is empty.")
@@ -57,10 +60,10 @@ else:
                     new_user_row = pd.DataFrame(0, index=[new_user_index], columns=user_matrix.columns)
                     for movie_id in selected_movie_ids:
                         if movie_id in new_user_row.columns:
-                            new_user_row.loc[new_user_index, movie_id] = 5  # Assuming 5 is a high rating
+                            new_user_row.loc[new_user_index, movie_id] = 5
 
                     similarity = cosine_similarity(new_user_row, user_matrix)
-                    similar_users = similarity.argsort()[0][-3:]  # Get the top 3 similar users
+                    similar_users = similarity.argsort()[0][-3:]
 
                     recommendations_df = get_recommendations(similar_users)
                     if not recommendations_df.empty:
