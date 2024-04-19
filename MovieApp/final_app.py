@@ -14,7 +14,6 @@ if 'movie_ids' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state.page = 'selection'
 
-# Function to interact with the Flask backend
 def fetch_data(endpoint):
     base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
     # Ensure the endpoint string starts with a '/'
