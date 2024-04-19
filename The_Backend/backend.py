@@ -44,18 +44,18 @@ def home():
 
 @app.route('/movie_titles')
 def movie_titles():
-    query = f"SELECT DISTINCT(title) FROM `{app.config['PROJECT_NAME']}.a2.movies`"
+    query = f"SELECT DISTINCT(title) FROM `{app.config['PROJECT_NAME']}.movies`"
     return execute_query(query).to_json()
 
 @app.route('/movie_ids')
 def movie_ids():
-    query = f"SELECT DISTINCT(movieId) FROM `{app.config['PROJECT_NAME']}.a2.movies`"
+    query = f"SELECT DISTINCT(movieId) FROM `{app.config['PROJECT_NAME']}.movies`"
     return execute_query(query).to_json()
 
 @app.route('/movie_ids/<movie_title>')
 def movie_id_from_title(movie_title):
     query = f"""
-        SELECT movieId FROM `{app.config['PROJECT_NAME']}.a2.movies`
+        SELECT movieId FROM `{app.config['PROJECT_NAME']}.movies`
         WHERE title = @title
     """
     return execute_query(query.replace("@title", f'"{movie_title}"')).to_json()
@@ -63,14 +63,14 @@ def movie_id_from_title(movie_title):
 @app.route('/movie_titles/<movie_id>')
 def title_from_id(movie_id):
     query = f"""
-        SELECT title FROM `{app.config['PROJECT_NAME']}.a2.movies`
+        SELECT title FROM `{app.config['PROJECT_NAME']}.movies`
         WHERE movieId = @movie_id
     """
     return execute_query(query.replace("@movie_id", movie_id)).to_json()
 
 @app.route('/ratings')
 def ratings():
-    query = f"SELECT userId, movieId, rating_im FROM `{app.config['PROJECT_NAME']}.a2.ratings`"
+    query = f"SELECT userId, movieId, rating_im FROM `{app.config['PROJECT_NAME']}.ratings`"
     return execute_query(query).to_json()
 
 @app.route('/recommendations/<user_ids>')
@@ -78,8 +78,8 @@ def recommendations(user_ids):
     user_ids_list = user_ids.split(',')
     user_ids_query = " OR ".join(f"userId = {uid}" for uid in user_ids_list)
     query = f"""
-        SELECT * FROM ML.RECOMMEND(MODEL `{app.config['PROJECT_NAME']}.a2.first-MF-model`, 
-        (SELECT DISTINCT userId FROM `{app.config['PROJECT_NAME']}.a2.ratings` WHERE {user_ids_query}))
+        SELECT * FROM ML.RECOMMEND(MODEL `{app.config['PROJECT_NAME']}.first_MF_model`, 
+        (SELECT DISTINCT userId FROM `{app.config['PROJECT_NAME']}.ratings` WHERE {user_ids_query}))
         ORDER BY -predicted_rating_im_confidence
     """
     return execute_query(query).to_json()
