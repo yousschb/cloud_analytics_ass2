@@ -39,9 +39,6 @@ if selected_movies:
         if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
             selected_movies.remove(movie)
             st.experimental_rerun()
-    if st.sidebar.button("Get Recommendations"):
-        st.session_state['page'] = 'Recommendations'
-        st.experimental_rerun()
 
 # Custom CSS for button aesthetics
 st.markdown("""
