@@ -2,71 +2,60 @@ import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 import requests
-import time
 
-# Constants
-BACKEND_URL = "https://backenda2-mjz535d2kq-oa.a.run.app/"
-API_KEY = "?api_key=81eb26f048683218d8f96f9fab8e8c52"
+# Define API URL and Key
+API_KEY = "81eb26f048683218d8f96f9fab8e8c52"
 TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/"
+BACKEND_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app/"
 
-# Initialize session state
-if 'movie_ids' not in st.session_state:
+# Setup Streamlit page
+st.set_page_config(page_title="Movie Recommendations", layout="wide")
+st.title("🎥 Movie Recommendations")
+
+# Display selected movies in sidebar    
+if st.session_state.get("selected_movies"):
+    st.sidebar.write("You have selected these movies:")
+    for movie in st.session_state["selected_movies"]:
+        st.sidebar.write(movie)
+else:
+    st.write("You have not selected any movies yet.")
+
+# Generate recommendations
+if st.session_state.get('movie_ids'):
+    # Construct a new user preference matrix
+    user_ratings = pd.DataFrame(get_data_from_flask("rating_df"), columns=['userId', 'movieId', 'rating_im'])
+    user_matrix = user_ratings.pivot_table(index='userId', columns='movieId', values='rating_im').fillna(0)
+
+    new_user_ratings = pd.Series(0, index=user_matrix.columns)
+    for mid in st.session_state['movie_ids']:
+        if mid in new_user_ratings.index:
+            new_user_ratings[mid] = 5  # Assuming maximum preference
+
+    # Compute cosine similarity
+    user_similarity = cosine_similarity([new_user_ratings], user_matrix)
+    similar_users = user_similarity.argsort()[0][-3:]  # Top 3 similar users
+
+    # Fetch and display recommendations
+    recommended_ids = fetch_data(f"reco/{'/'.join(map(str, similar_users))}")
+    recommended_movies = pd.DataFrame(recommended_ids, columns=['movieId', 'predicted_rating_im_confidence']).head(5)
+
+    for mid in recommended_movies['movieId']:
+        movie_details = fetch_data(f"title_from_id/{mid}")
+        with st.expander(movie_details['title']):
+            movie_info = requests.get(f"{TMDB_BASE_URL}{mid}?api_key={API_KEY}").json()
+            st.image(f"https://image.tmdb.org/t/p/original{movie_info['poster_path']}")
+            st.write(f"Overview: {movie_info['overview']}")
+
+# Reset button
+if st.button("Reset Selection"):
+    st.session_state['selected_movies'] = []
     st.session_state['movie_ids'] = []
 
-def get_data_from_flask(endpoint):
+def fetch_data(endpoint):
     response = requests.get(BACKEND_URL + endpoint)
-    if response.status_code == 200:
+    if response.ok:
         return response.json()
     else:
-        st.error("Failed to fetch data from backend")
-        return None
+        st.error("Failed to fetch data")
+        return {}
 
-def get_movie_details(movie_id):
-    response = requests.get(f"{TMDB_BASE_URL}{movie_id}{API_KEY}")
-    if response.status_code == 200:
-        return response.json()
-    else:
-        st.error("Failed to fetch movie details")
-        return None
-
-def fetch_recommendations(similar_users):
-    # Construct the endpoint URL to fetch recommendations for similar users
-    users_str = "/".join(map(str, similar_users))
-    return get_data_from_flask(f"reco/{users_str}")
-
-st.title("Movie Recommendations")
-st.markdown("<h2 style='text-align: center;'>Based on your movie selections, here are some recommendations:</h2>", unsafe_allow_html=True)
-
-# If movies have been selected previously
-if st.session_state['movie_ids']:
-    # Fetch recommendations based on similar users
-    user_ratings = pd.DataFrame(get_data_from_flask("rating_df"), columns=['userId', 'movieId', 'rating_im'])
-    user_matrix = user_ratings.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
-    
-    # Creating a new user row based on selected movies
-    new_user_row = pd.Series(0, index=user_matrix.columns)
-    for movie_id in st.session_state['movie_ids']:
-        if movie_id in new_user_row.index:
-            new_user_row[movie_id] = 5  # Assuming maximum interest
-    
-    # Calculating cosine similarity
-    similarity = cosine_similarity([new_user_row], user_matrix)
-    top_users = similarity.argsort()[0][-3:]  # Get top 3 similar users
-    
-    recommendations = fetch_recommendations(top_users)
-    recommended_movies = pd.DataFrame(recommendations, columns=['movieId', 'predicted_rating_im_confidence']).sort_values(by='predicted_rating_im_confidence', ascending=False).head(5)
-    
-    for idx, row in recommended_movies.iterrows():
-        movie_details = get_movie_details(row['movieId'])
-        if movie_details:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(movie_details['poster_path'], width=320)
-            with col2:
-                st.write(f"**{movie_details['title']}**")
-                st.write(f"Overview: {movie_details['overview']}")
-                st.write(f"Genres: {', '.join([genre['name'] for genre in movie_details['genres']])}")
-                st.write(f"Release Date: {movie_details['release_date']}")
-                st.write(f"Rating: {movie_details['vote_average']}/10")
-else:
-    st.write("No movies selected for recommendations. Please go back and select some movies first.")
