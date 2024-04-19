@@ -99,18 +99,6 @@ def recommendations(user_ids):
     results = query_job.to_dataframe()  # Convertit les résultats en DataFrame
     return results.to_json()
 
-
-@app.route('/title_from_id/<movie_id>')
-def title_from_id(movie_id):
-    """Return the title of a movie based on its ID."""
-    query = f"""
-            SELECT m.title
-            FROM `caaych2.mo.movies` m
-            WHERE m.movieId = {movie_id}
-            """
-    result = execute_query(query)
-    return result.to_json()
-
 @app.route('/tmdb_id/<movie_id>')
 def tmdb_id(movie_id):
     """Return the TMDB ID of a movie based on its movie ID."""
