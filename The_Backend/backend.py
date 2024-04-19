@@ -105,7 +105,7 @@ def title_from_id(movie_id):
     """Return the title of a movie based on its ID."""
     query = f"""
             SELECT m.title
-            FROM `{PROJECT_NAME}.{DATASET}.movies` m
+            FROM `caaych2.mo.movies` m
             WHERE m.movieId = {movie_id}
             """
     result = execute_query(query)
@@ -116,7 +116,7 @@ def tmdb_id(movie_id):
     """Return the TMDB ID of a movie based on its movie ID."""
     query = f"""
             SELECT l.tmdbId
-            FROM `{PROJECT_NAME}.{DATASET}.links` l
+            FROM `caaych2.mo.links` l
             WHERE l.movieId = {movie_id}
             """
     result = execute_query(query)
