@@ -22,16 +22,19 @@ def fetch_data(endpoint):
         return None
 
 # Display selected movies in sidebar    
-if st.session_state.get("selected_movies"):
+if 'selected_movies' in st.session_state and st.session_state["selected_movies"]:
     st.sidebar.write("You have selected these movies:")
     for movie in st.session_state["selected_movies"]:
         st.sidebar.write(movie)
 else:
-    st.write("You have not selected any movies yet.")
+    st.sidebar.write("You have not selected any movies yet.")
 
 # Button to generate recommendations
 if st.button("Get Recommendations"):
-    if st.session_state.get('movie_ids'):
+    if 'movie_ids' in st.session_state and st.session_state['movie_ids']:
+        # Debugging output
+        st.write(f"Debug: Selected Movie IDs - {st.session_state['movie_ids']}")
+
         # Construct a new user preference matrix
         ratings_data = fetch_data("rating_df")
         if ratings_data:
@@ -58,15 +61,20 @@ if st.button("Get Recommendations"):
                     if movie_details:
                         with st.expander(movie_details['title']):
                             movie_info = requests.get(f"{TMDB_BASE_URL}{mid}{API_KEY}").json()
-                            if 'poster_path' in movie_info and 'overview' in movie_info:
-                                st.image(f"https://image.tmdb.org/t/p/original{movie_info['poster_path']}")
-                                st.write(f"Overview: {movie_info['overview']}")
+                            st.image(f"https://image.tmdb.org/t/p/original{movie_info['poster_path']}")
+                            st.write(f"Overview: {movie_info['overview']}")
                     else:
                         st.error("Failed to fetch movie details.")
+            else:
+                st.error("Failed to retrieve recommendations.")
+        else:
+            st.error("Failed to retrieve user ratings data.")
     else:
         st.error("No movies selected for recommendations. Please select some movies first.")
 
 # Reset button
 if st.button("Reset Selection"):
-    st.session_state['selected_movies'] = []
-    st.session_state['movie_ids'] = []
+    if 'selected_movies' in st.session_state:
+        st.session_state['selected_movies'].clear()
+    if 'movie_ids' in st.session_state:
+        st.session_state['movie_ids'].clear()
