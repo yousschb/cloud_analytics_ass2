@@ -94,5 +94,18 @@ def search_elastic(query):
     titles = [hit['_source']['title'] for hit in response['hits']['hits']]
     return jsonify(titles)
 
+@app.route('/tmdb_id/<movie_id>')
+def tmdb_id(movie_id):
+    query = f"""
+            SELECT tmdbId
+            FROM `caaych2.mo.links`
+            WHERE movieId = {movie_id}
+            """
+    result = bigquery_client.query(query).to_dataframe()
+    if result.empty:
+        return jsonify({"error": "TMDB ID not found for the given movie ID"})
+    return jsonify(result['tmdbId'].to_dict())
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
