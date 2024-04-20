@@ -29,7 +29,7 @@ if search_term:
         if st.button(movie, key=f"btn_{movie}"):
             if movie not in st.session_state['selected_movies']:
                 st.session_state['selected_movies'].append(movie)
-                st.session_state['movie_ids'].append(movie_id)
+                st.session_state['movie_ids'].append(movieId)
                 st.experimental_rerun()
 
 # Sidebar for managing selected movies
