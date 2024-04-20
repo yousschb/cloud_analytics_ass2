@@ -6,7 +6,7 @@ import time
 
 
 
-if 'movie_title_selected' not in st.session_state:
+if 'selected_movies' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
 
 if "movie_id" not in st.session_state:
