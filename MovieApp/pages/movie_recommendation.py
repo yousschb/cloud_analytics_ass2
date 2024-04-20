@@ -36,7 +36,7 @@ if search_term:
             if movie not in st.session_state['selected_movies']:
                 st.session_state['selected_movies'].append(movie)
                 st.experimental_rerun()
-
+"""
 # Display selected movies
 selected_movies = st.session_state.get('selected_movies', [])  # Use .get with default empty list
 if selected_movies:
@@ -45,7 +45,18 @@ if selected_movies:
         if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
             selected_movies.remove(movie)
             st.experimental_rerun()
+"""
 
+# Display and manage selected movies
+if st.session_state['selected_movies']:
+    st.sidebar.header("Selected Movies")
+    for movie in st.session_state['selected_movies']:
+        if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
+            index = st.session_state['selected_movies'].index(movie)
+            st.session_state['selected_movies'].pop(index)
+            st.session_state['movie_ids'].pop(index)
+            st.experimental_rerun()
+            
 # Recommendations button
 if st.sidebar.button("Get Recommendations"):
     if st.session_state['movie_ids']:
