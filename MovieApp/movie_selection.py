@@ -16,6 +16,7 @@ if 'selected_movies' not in st.session_state:
 if 'movie_ids' not in st.session_state:
     st.session_state['movie_ids'] = []
 
+
 # Configure Streamlit page properties
 st.set_page_config(page_title="Movie Selector", layout='wide')
 st.title("🎬 Movie Selector Interface")
