@@ -3,6 +3,21 @@ import requests
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
+def fetch_data(endpoint):
+    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
+    full_url = f"{base_url}/{endpoint}"
+    try:
+        response = requests.get(full_url)
+        response.raise_for_status()  # Will raise an exception for HTTP errors
+        return response.json()  # This will raise an exception if response is not JSON
+    except requests.HTTPError as http_err:
+        st.error(f"HTTP error occurred: {http_err}")  # Provide feedback on HTTP errors
+    except requests.RequestException as err:
+        st.error(f"Request error occurred: {err}")  # General request exceptions (network issues, etc.)
+    except ValueError as json_err:
+        st.error(f"JSON decoding error: {json_err}")  # JSON decoding issues
+    return None  # Return None or an empty dict if you want to handle missing data elsewhere
+"""
 # Function to interact with the Flask backend
 def fetch_data(endpoint):
     base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
@@ -11,7 +26,7 @@ def fetch_data(endpoint):
     full_url = f"{base_url}{endpoint}"
     response = requests.get(full_url)
     return response.json()
-
+"""
         
 # Initialize session state keys with default values if they don't exist.
 if 'selected_movies' not in st.session_state:
