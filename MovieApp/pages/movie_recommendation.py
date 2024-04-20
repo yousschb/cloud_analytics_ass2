@@ -46,24 +46,23 @@ if selected_movies:
             selected_movies.remove(movie)
             st.experimental_rerun()
 
-# Button to get recommendations
+# Recommendations button
 if st.sidebar.button("Get Recommendations"):
     if st.session_state['movie_ids']:
-        # Fetch user ratings matrix
         ratings = fetch_data("ratings")
         if ratings:
             df = pd.DataFrame(ratings)
             user_matrix = df.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
 
-            # Create a new user profile based on selected movies
+            # Create new user profile
             new_user_profile = pd.DataFrame(0, index=['new_user'], columns=user_matrix.columns)
             for movie_id in st.session_state['movie_ids']:
                 if movie_id in new_user_profile.columns:
-                    new_user_profile.at['new_user', movie_id] = 1.0  # Max rating
+                    new_user_profile.at['new_user', movie_id] = 1.0
 
-            # Calculate cosine similarity and find top 3 similar users
+            # Calculate similarity
             similarity = cosine_similarity(new_user_profile, user_matrix)
-            similar_users = similarity.argsort()[0][-4:-1]  # Top 3 similar users
+            similar_users = similarity.argsort()[0][-4:-1]
             recommendations = fetch_data(f"recommendations/{','.join(map(str, similar_users))}")
 
             if recommendations:
@@ -76,4 +75,3 @@ if st.sidebar.button("Get Recommendations"):
                 st.error("No recommendations found.")
     else:
         st.sidebar.warning("Please select at least one movie for recommendations.")
-
