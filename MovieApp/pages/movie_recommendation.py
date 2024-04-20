@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 # Base URL for backend API calls
 BASE_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
 
@@ -16,12 +17,16 @@ def fetch_data(endpoint):
     except requests.RequestException as e:
         st.error(f"Failed to fetch data: {str(e)}")
         return None
-
-# Initialize session state for selected movies and IDs
+        
+# Initialize session state keys with default values if they don't exist.
 if 'selected_movies' not in st.session_state:
     st.session_state['selected_movies'] = []
+
 if 'movie_ids' not in st.session_state:
     st.session_state['movie_ids'] = []
+
+if 'movie_title_selected' not in st.session_state:
+    st.session_state['movie_title_selected'] = []  # Initialize as an empty list.
 
 st.title("🎬 Movie Recommendations")
 
