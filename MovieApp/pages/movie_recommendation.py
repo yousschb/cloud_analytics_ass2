@@ -1,84 +1,134 @@
 import streamlit as st
-import requests
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-
-# Function to interact with the Flask backend
-def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
-    full_url = f"{base_url}{endpoint}"
-    response = requests.get(full_url)
-    try:
-        # Try to return JSON if possible
-        response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
-        return response.json()
-    except requests.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")  # Python 3.6
-        return {}  # Return an empty dict if there's an HTTP error
-    except ValueError as json_err:
-        print(f"JSON decode error: {json_err}")  # Problems parsing JSON
-        return {}  # Return an empty dict if the JSON is invalid
+import requests
+import time
 
 
-# Initialize session state for selected movies and movie IDs
-if 'selected_movies' not in st.session_state:
-    st.session_state['selected_movies'] = []
-if 'selected_movie_ids' not in st.session_state:
-    st.session_state['selected_movie_ids'] = []
 
-# Fetch the user matrix (ratings data) from the backend for cosine similarity calculation
-def fetch_user_matrix():
-    ratings = fetch_data('/ratings')
-    df = pd.DataFrame(ratings)
-    return df.pivot(index='userId', columns='movieId', values='rating').fillna(0)
+if 'movie_title_selected' not in st.session_state:
+    st.session_state['movie_title_selected'] = list()
 
-# Calculate cosine similarity and find the top 3 similar users
-def find_similar_users(user_profile, user_matrix):
-    similarity = cosine_similarity(user_profile, user_matrix)
-    top_indices = similarity.argsort()[0][-4:-1]  # Exclude the last one because it's the user itself
-    return user_matrix.index[top_indices].tolist()
+if "movie_id" not in st.session_state:
+    st.session_state['movie_id'] = list()
 
-# Generate movie recommendations using the backend
-def generate_recommendations(similar_user_ids):
-    ids = ','.join(map(str, similar_user_ids))
-    recommendations = fetch_data(f'/recommendations/{ids}')
-    return pd.DataFrame(recommendations)
+def get_data_from_flask(url_path):
+    url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app" + url_path
+    response = requests.get(url)
+    return response.json()
 
-# Convert movie IDs to titles
-def convert_ids_to_titles(movie_ids):
-    titles = []
-    for mid in movie_ids:
-        title = fetch_data(f'/title_from_movie_id/{mid}')
-        if title:
-            titles.append(title['title'][0])
-    return titles
+def get_title_from_id(id):
+    df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
+    return df
 
-# Page for Recommendations
-st.set_page_config(page_title="Movie Recommendations", layout='wide')
-st.title("🎬 Movie Recommendations")
 
-# Display recommendations if there are selected movies
-if 'selected_movies' in st.session_state and st.session_state['selected_movies']:
-    # Get movie IDs from titles
-    movie_ids = [fetch_data(f"/movie_id_from_title/{movie}")['movieId'][0] for movie in st.session_state['selected_movies']]
-    st.session_state['selected_movie_ids'] = movie_ids
+def display_info(movie_id):
+    if movie_id:
+        response = requests.get(MOVIE + str(movie_id) + API_KEY)
+        data = response.json()
+        st.write(data['tagline'])
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
+        with col2:
+            genres = ""
+            for genre in data['genres']:
+                genres += genre['name'] + ", "
+            st.write("Genres: " + genres[:-2])
+            st.write(f"Overview: {data['overview']}")
+            st.write(f"Language: {data['original_language']}")
+            st.write(f"Release Date: {data['release_date']}")
+            st.write(f"Vote Average: {data['vote_average']}")
     
-    user_matrix = fetch_user_matrix()
-    new_user_row = pd.DataFrame(0, index=['new_user'], columns=user_matrix.columns)
-    for movie_id in movie_ids:
-        if movie_id in new_user_row.columns:
-            new_user_row.at['new_user', movie_id] = 1.0  # Assume max rating for selected movies
 
-    similar_users = find_similar_users(new_user_row, user_matrix)
-    recommendations_df = generate_recommendations(similar_users)
-    
-    recommended_movie_ids = recommendations_df['movieId'].tolist()
-    recommended_titles = convert_ids_to_titles(recommended_movie_ids)
-    
-    st.write("We recommend the following movies based on your preferences:")
-    for title in recommended_titles:
-        st.write(title)
+
+
+st.set_page_config(page_title="Movie Reco")
+st.markdown("<h1 style='text-align: center;'>Recommendations</h1>", unsafe_allow_html=True)
+
+# display selected movies in sidebar    
+if st.session_state["movie_title_selected"]:
+    st.sidebar.write("You have selected these movies :")
+    for i in st.session_state["movie_title_selected"]:
+        st.sidebar.write(i)
 else:
-    st.write("Please select some movies first.")
+    st.write("You have not selected any movies yet.")
 
-# Ensure that this entire setup is correctly retrieving data from the backend, and each function handles possible errors or missing data.
+
+
+if st.session_state['movie_title_selected']:
+    for movie_title in st.session_state['movie_title_selected']:
+        df = pd.DataFrame(get_data_from_flask("movie_ids/" + movie_title), columns = ["movieId"])
+        for movie_id in df['movieId']:
+            if movie_id not in st.session_state['movie_id']:
+                st.session_state['movie_id'].append(movie_id)
+
+
+# Creation of new user :
+    new_user_movie_id_list = list()
+
+    if st.session_state['movie_id']:
+        for i in st.session_state['movie_id']:
+            new_user_movie_id_list.append(i)
+
+
+
+# rating df
+    if 'rating_df' not in st.session_state:
+        rating_df = pd.DataFrame(get_data_from_flask("ratings"), 
+                                columns=['userId', 'movieId', 'rating_im'])
+        st.session_state['rating_df'] = rating_df
+
+    user_matrix = st.session_state['rating_df'].pivot_table(index = 'userId', 
+                                                            columns = 'movieId', values = 'rating_im')
+    user_matrix = user_matrix.fillna(0)
+    #  (610, 9724)
+
+    new_user_row = pd.DataFrame(0, index=[user_matrix.index[-1] + 1], columns=user_matrix.columns)
+    new_user_row[new_user_movie_id_list] = 1
+    similarity = cosine_similarity(new_user_row, user_matrix)
+
+# Most 3 Similar Users
+    most_5_similar_users = [index + 1 for index in similarity.argsort()[0][-5:][::-1]]
+
+# Recommendations
+    df = pd.DataFrame(get_data_from_flask("recommendations/" + str(most_5_similar_users[0]) + "," + 
+                        str(most_5_similar_users[1]) + "," + str(most_5_similar_users[2]) + 
+                        "," + str(most_5_similar_users[3]) + "," + str(most_5_similar_users[4])), 
+                        columns = ['userId', 'movieId', 'predicted_rating_im_confidence'])
+    
+    df_filtered = df[~df['movieId'].isin(st.session_state['movie_id'])]
+    df2 = df_filtered.drop_duplicates(subset=['movieId'], keep="first")
+    five_movies = df2.head(8)
+
+    progress_text = "Operation in progress. Please wait."
+    my_bar = st.progress(0, text=progress_text)
+    for percent_complete in range(100):
+        time.sleep(0.05)
+        my_bar.progress(percent_complete + 1, text=progress_text)
+    time.sleep(1)
+    my_bar.empty()
+    st.write("Based on the movies you selected, we recommend you to watch these movies :")
+
+
+#  DISPLAY INFO OF RECOMMENDED MOVIES
+
+    API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
+    MOVIE = "https://api.themoviedb.org/3/movie/"
+
+    for movie_id in five_movies['movieId']:
+        if movie_id not in st.session_state['movie_title_selected']:
+            tmdb_id = get_data_from_flask("tmdb_id/" + str(movie_id))
+            with st.expander(f"{get_title_from_id(movie_id)['title'][0]}"):
+                display_info(tmdb_id["tmdbId"]["0"])
+
+
+
+# Add to selection
+if st.button("Add to Selection"):
+    st.switch_page('movie_selection.py')
+
+# Clear Selection
+if st.button("Clear Selection", on_click=lambda: st.session_state.pop("movie_title_selected", None)):
+    st.switch_page('movie_selection.py')
+
