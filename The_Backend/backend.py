@@ -78,6 +78,7 @@ def generate_recommendations(user_ids):
     results = execute_bigquery(query)
     return results.to_json()
 
+
 @app.route('/elastic_search/<query>')
 def search_elastic(query):
     body = {
@@ -93,30 +94,25 @@ def search_elastic(query):
     response = elastic_client.search(index=INDEX_NAME, body=body)
     titles = [hit['_source']['title'] for hit in response['hits']['hits']]
     return jsonify(titles)
-
+    
 @app.route('/tmdb_id/<movie_id>')
 def tmdb_id(movie_id):
-    query = "SELECT tmdbId FROM `caaych2.mo.links` WHERE movieId = {movie_id}"
-    result = bigquery_client.query(query).to_dataframe()
-    if result.empty:
-        return jsonify({"error": "TMDB ID not found for the given movie ID"})
-    return jsonify(result['tmdbId'].to_dict())
+    query = f"SELECT tmdbId FROM `caaych2.mo.links` WHERE movieId = {movie_id}"
+    results = execute_bigquery(query)
+    return results.to_json()
 
-@app.route('/movie_id/<movie_title>')
+@app.route('/movie_id_from_title/<movie_title>')
 def movie_id_from_title(movie_title):
-    query = "SELECT movieId FROM `caaych2.mo.movies` WHERE title = @title"
+    query = f"SELECT movieId FROM `caaych2.mo.movies` WHERE title = '{movie_title}'"
     results = execute_bigquery(query)
     return results.to_json()
 
 
-@app.route('/title_from_id/<int:movie_id>')
-def title_from_id(movie_id):
-    query = "SELECT title FROM `caaych2.mo.movies` WHERE movieId = @movie_id"
+@app.route('/title_from_movie_id/<movie_id>')
+def title_from_movie_id(movie_id):
+    query = f"SELECT title FROM `caaych2.mo.movies` WHERE movieId = {movie_id}"
     results = execute_bigquery(query)
     return results.to_json()
-
-
-
-
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
