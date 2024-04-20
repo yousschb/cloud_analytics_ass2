@@ -1,71 +1,60 @@
 import streamlit as st
-import pandas as pd
 import requests
+import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Constants
-BASE_URL = "https://cloud-analytics-caa2-gev3pcymxa-uc.a.run.app"
+BASE_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
 
 def fetch_data(endpoint):
     """ Fetch data from the Flask backend """
-    response = requests.get(f"{BASE_URL}/{endpoint}")
-    if response.status_code == 200:
+    try:
+        response = requests.get(f"{BASE_URL}/{endpoint}")
+        response.raise_for_status()  # Will raise HTTPError for bad requests (400 or 500)
         return response.json()
-    else:
-        st.error(f"Failed to fetch data from {endpoint}, status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to fetch data: {str(e)}")
         return None
 
-def get_recommendations(similar_users):
-    """ Fetch recommendations based on similar user IDs """
-    if not similar_users:
-        return pd.DataFrame()
-    user_ids = ",".join(map(str, similar_users))
-    recommendations_json = fetch_data(f"recommendations/{user_ids}")
-    if recommendations_json:
-        return pd.read_json(recommendations_json)
-    else:
-        return pd.DataFrame()
+def get_user_matrix_and_profile(selected_movie_ids):
+    ratings_json = fetch_data("ratings")
+    if ratings_json:
+        ratings_df = pd.DataFrame(ratings_json)
+        user_matrix = ratings_df.pivot(index='userId', columns='movieId', values='rating').fillna(0)
+        new_user_row = pd.DataFrame(0, index=['new_user'], columns=user_matrix.columns)
+        # Ensure only valid movie IDs are used
+        valid_movie_ids = set(user_matrix.columns) & set(selected_movie_ids)
+        for movie_id in valid_movie_ids:
+            new_user_row.at['new_user', movie_id] = 1.0
+        return user_matrix, new_user_row
+    return None, None
 
+def get_recommendations(user_matrix, new_user_profile):
+    similarity = cosine_similarity(new_user_profile, user_matrix)
+    top_indices = similarity.argsort()[0][-4:-1]  # Top 3 similar users, excluding the last one (new user itself)
+    if top_indices.size > 0:
+        user_ids = user_matrix.index[top_indices].tolist()
+        recommendations_json = fetch_data(f"recommendations/{','.join(map(str, user_ids))}")
+        if recommendations_json:
+            return pd.DataFrame(recommendations_json)
+    return pd.DataFrame()
+
+# Streamlit page configuration
 st.set_page_config(page_title="Movie Recommendations")
 st.title("🎬 Movie Recommendations")
 
-if 'selected_movies' not in st.session_state or not st.session_state['selected_movies']:
+# Assuming the movie IDs are stored in the session state
+if not st.session_state.get('selected_movie_ids', []):
     st.write("No movies selected for recommendations. Please select movies first.")
 else:
-    st.write("You have selected the following movies:")
-    for movie in st.session_state['selected_movies']:
-        st.write(movie)
-
-    ratings_data = fetch_data("ratings")
-    if not ratings_data:
-        st.error("Failed to fetch ratings data or data is empty.")
+    user_matrix, new_user_profile = get_user_matrix_and_profile(st.session_state['selected_movie_ids'])
+    if user_matrix is not None and not new_user_profile.empty:
+        recommendations_df = get_recommendations(user_matrix, new_user_profile)
+        if not recommendations_df.empty:
+            st.write("We recommend the following movies based on your preferences:")
+            for idx, row in recommendations_df.iterrows():
+                st.write(f"{row['movieId']} - {row['title']}")
+        else:
+            st.write("No recommendations found.")
     else:
-        try:
-            # Check the structure of the fetched data
-            st.write("Fetched ratings data:", ratings_data)
-            ratings_df = pd.DataFrame(ratings_data)
-            if ratings_df.empty or 'rating_im' not in ratings_df.columns:
-                st.error("Ratings DataFrame is empty or missing 'rating_im'.")
-            else:
-                st.write("Ratings DataFrame:", ratings_df.head())  # Debug output
-                user_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating_im', fill_value=0)
-                if user_matrix.empty:
-                    st.error("User matrix is empty.")
-                else:
-                    new_user_index = max(user_matrix.index) + 1
-                    new_user_row = pd.DataFrame(0, index=[new_user_index], columns=user_matrix.columns)
-                    for movie_id in st.session_state['selected_movies']:
-                        new_user_row.loc[new_user_index, movie_id] = 5  # Assuming 5 is a high rating
-
-                    similarity = cosine_similarity(new_user_row, user_matrix)
-                    similar_users = similarity.argsort()[0][-3:]
-
-                    recommendations_df = get_recommendations(similar_users)
-                    if not recommendations_df.empty:
-                        st.write("We recommend the following movies based on your preferences:")
-                        for idx, row in recommendations_df.iterrows():
-                            st.write(f"{row['movieId']} - {row['title']}")
-                    else:
-                        st.write("No recommendations found.")
-        except Exception as e:
-            st.error(f"An error occurred while processing ratings data: {e}")
+        st.error("Failed to fetch ratings data or construct user profile.")
