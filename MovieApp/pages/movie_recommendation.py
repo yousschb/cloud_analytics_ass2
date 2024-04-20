@@ -45,9 +45,7 @@ if selected_movies:
         if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
             selected_movies.remove(movie)
             st.experimental_rerun()
-    if st.sidebar.button("Get Recommendations", type= "primary"):
-        st.switch_page('pages/movie_recommendation.py')
-        
+
 # Button to get recommendations
 if st.sidebar.button("Get Recommendations"):
     if st.session_state['movie_ids']:
