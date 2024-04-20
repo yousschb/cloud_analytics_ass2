@@ -38,12 +38,16 @@ if search_term:
                 st.experimental_rerun()
 
 
-# Display selected movies
-if st.session_state['selected_movies']:
-    st.sidebar.write("Selected Movies:")
-    for movie in st.session_state['selected_movies']:
-        st.sidebar.write(movie)
-
+selected_movies = st.session_state.get('selected_movies', [])  # Use .get with default empty list
+if selected_movies:
+    st.sidebar.header("Selected Movies")
+    for movie in selected_movies:
+        if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
+            selected_movies.remove(movie)
+            st.experimental_rerun()
+    if st.sidebar.button("Get Recommendations", type= "primary"):
+        st.switch_page('pages/movie_recommendation.py')
+        
 # Button to get recommendations
 if st.sidebar.button("Get Recommendations"):
     if st.session_state['movie_ids']:
