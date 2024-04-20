@@ -40,7 +40,7 @@ if selected_movies:
             selected_movies.remove(movie)
             st.experimental_rerun()
     if st.sidebar.button("Get Recommendations", type= "primary"):
-        st.switch_page('pages/Recommendations.py')
+        st.switch_page('pages/movie_recommendation.py')
 
 # Custom CSS for button aesthetics
 st.markdown("""
