@@ -106,6 +106,41 @@ def tmdb_id(movie_id):
         return jsonify({"error": "TMDB ID not found for the given movie ID"})
     return jsonify(result['tmdbId'].to_dict())
 
+@app.route('/movie_id/<movie_title>')
+def movie_id_from_title(movie_title):
+    query = """
+            SELECT movieId
+            FROM `caaych2.mo.movies`
+            WHERE title = @title
+            """
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter('title', 'STRING', movie_title)
+        ]
+    )
+    query_job = client.query(query, job_config=job_config)
+    results = query_job.to_dataframe()
+    return results.to_json()
+
+
+@app.route('/title_from_id/<int:movie_id>')
+def title_from_id(movie_id):
+    query = """
+            SELECT title
+            FROM `caaych2.mo.movies`
+            WHERE movieId = @movie_id
+            """
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter('movie_id', 'INT64', movie_id)
+        ]
+    )
+    query_job = client.query(query, job_config=job_config)
+    results = query_job.to_dataframe()
+    return results.to_json()
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
