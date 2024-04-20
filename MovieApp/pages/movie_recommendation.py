@@ -6,8 +6,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Function to interact with the Flask backend
 def fetch_data(endpoint):
     base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
-    response = requests.get(f"{base_url}/{endpoint}")
-    return response.json()
+    full_url = f"{base_url}{endpoint}"
+    response = requests.get(full_url)
+    try:
+        # Try to return JSON if possible
+        response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
+        return response.json()
+    except requests.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")  # Python 3.6
+        return {}  # Return an empty dict if there's an HTTP error
+    except ValueError as json_err:
+        print(f"JSON decode error: {json_err}")  # Problems parsing JSON
+        return {}  # Return an empty dict if the JSON is invalid
+
 
 # Initialize session state for selected movies and movie IDs
 if 'selected_movies' not in st.session_state:
