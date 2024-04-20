@@ -29,17 +29,15 @@ if search_term:
         if st.button(movie, key=f"btn_{movie}"):
             if movie not in st.session_state['selected_movies']:
                 st.session_state['selected_movies'].append(movie)
-                st.session_state['movie_ids'].append(movieId)
                 st.experimental_rerun()
 
 # Sidebar for managing selected movies
-if st.session_state['selected_movies']:
+selected_movies = st.session_state.get('selected_movies', [])  # Use .get with default empty list
+if selected_movies:
     st.sidebar.header("Selected Movies")
-    for i, movie in enumerate(st.session_state['selected_movies']):
+    for movie in selected_movies:
         if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
-            # Remove movie and its ID
-            st.session_state['selected_movies'].pop(i)
-            st.session_state['movie_ids'].pop(i)
+            selected_movies.remove(movie)
             st.experimental_rerun()
 
 # Custom CSS for button aesthetics
