@@ -29,18 +29,14 @@ st.title("🎬 Movie Recommendations")
 st.sidebar.title("Movie Selector")
 search_term = st.sidebar.text_input("Search for movies:", "")
 if search_term:
+    st.subheader("Select from the following results:")
     search_results = fetch_data(f"elastic_search/{search_term}")
-    if search_results:
-        for movie in search_results:
-            if st.sidebar.button(movie):
-                if movie not in st.session_state['selected_movies']:
-                    movie_data = fetch_data(f"movie_id_from_title/{movie}")
-                    if movie_data and 'movieId' in movie_data:
-                        st.session_state['selected_movies'].append(movie)
-                        st.session_state['movie_ids'].append(movie_data['movieId'])
-                        st.experimental_rerun()
-                    else:
-                        st.sidebar.error("Movie ID not found for the selected movie.")
+    for movie in search_results:
+        if st.button(movie, key=f"btn_{movie}"):
+            if movie not in st.session_state['selected_movies']:
+                st.session_state['selected_movies'].append(movie)
+                st.experimental_rerun()
+
 
 # Display selected movies
 if st.session_state['selected_movies']:
