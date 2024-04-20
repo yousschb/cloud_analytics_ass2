@@ -96,11 +96,7 @@ def search_elastic(query):
 
 @app.route('/tmdb_id/<movie_id>')
 def tmdb_id(movie_id):
-    query = f"""
-            SELECT tmdbId
-            FROM `caaych2.mo.links`
-            WHERE movieId = {movie_id}
-            """
+    query = "SELECT tmdbId FROM `caaych2.mo.links` WHERE movieId = {movie_id}"
     result = bigquery_client.query(query).to_dataframe()
     if result.empty:
         return jsonify({"error": "TMDB ID not found for the given movie ID"})
@@ -108,35 +104,15 @@ def tmdb_id(movie_id):
 
 @app.route('/movie_id/<movie_title>')
 def movie_id_from_title(movie_title):
-    query = """
-            SELECT movieId
-            FROM `caaych2.mo.movies`
-            WHERE title = @title
-            """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter('title', 'STRING', movie_title)
-        ]
-    )
-    query_job = client.query(query, job_config=job_config)
-    results = query_job.to_dataframe()
+    query = "SELECT movieId FROM `caaych2.mo.movies` WHERE title = @title"
+    results = execute_bigquery(query)
     return results.to_json()
 
 
 @app.route('/title_from_id/<int:movie_id>')
 def title_from_id(movie_id):
-    query = """
-            SELECT title
-            FROM `caaych2.mo.movies`
-            WHERE movieId = @movie_id
-            """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter('movie_id', 'INT64', movie_id)
-        ]
-    )
-    query_job = client.query(query, job_config=job_config)
-    results = query_job.to_dataframe()
+    query = "SELECT title FROM `caaych2.mo.movies` WHERE movieId = @movie_id"
+    results = execute_bigquery(query)
     return results.to_json()
 
 
