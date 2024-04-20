@@ -3,20 +3,15 @@ import requests
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-
-# Base URL for backend API calls
-BASE_URL = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
-
+# Function to interact with the Flask backend
 def fetch_data(endpoint):
-    """Fetch data from backend API and handle errors."""
-    url = f"{BASE_URL}/{endpoint}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raises HTTPError for bad responses
-        return response.json()
-    except requests.RequestException as e:
-        st.error(f"Failed to fetch data: {str(e)}")
-        return None
+    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
+    if not endpoint.startswith('/'):
+        endpoint = '/' + endpoint
+    full_url = f"{base_url}{endpoint}"
+    response = requests.get(full_url)
+    return response.json()
+
         
 # Initialize session state keys with default values if they don't exist.
 if 'selected_movies' not in st.session_state:
