@@ -37,7 +37,7 @@ if search_term:
                 st.session_state['selected_movies'].append(movie)
                 st.experimental_rerun()
 
-
+# Display selected movies
 selected_movies = st.session_state.get('selected_movies', [])  # Use .get with default empty list
 if selected_movies:
     st.sidebar.header("Selected Movies")
