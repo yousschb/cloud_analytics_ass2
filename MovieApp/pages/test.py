@@ -3,7 +3,7 @@ import requests
 
 # Define a function to fetch data from the Flask backend
 def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
+    base_url = "https://cloud-analytics-ass204-gev3pcymxa-uc.a.run.app"
     url = f"{base_url}/{endpoint}"
     response = requests.get(url)
     return response.json()
