@@ -29,14 +29,24 @@ search_term = st.text_input("Type to search for movies:", placeholder="Start typ
 if search_term:
     st.subheader("Select from the following results:")
     search_results = fetch_data(f"elastic_search/{search_term}")
-    for movie in search_results:
-        movie_title = movie['title']
-        tmdb_id = movie['id']
-        if st.button(movie_title, key=f"btn_{tmdb_id}"):
-            if tmdb_id not in st.session_state['movie_ids']:
-                st.session_state['selected_movies'].append(movie_title)
-                st.session_state['movie_ids'].append(tmdb_id)
-                st.experimental_rerun()
+    if search_results is None:
+        st.error("Received no data from the API. Check the API endpoint and its accessibility.")
+    else:
+        # Debugging output
+        st.write("DEBUG: Type of search_results:", type(search_results))
+        st.write("DEBUG: Content of search_results:", search_results)
+
+        # Ensure search_results is a list of dictionaries before iterating
+        if isinstance(search_results, list) and all(isinstance(movie, dict) for movie in search_results):
+            for movie in search_results:
+                movie_title = movie['title']
+                tmdb_id = movie['id']
+                if st.button(movie_title, key=f"btn_{tmdb_id}"):
+                    if tmdb_id not in st.session_state['movie_ids']:
+                        st.session_state['movie_ids'].append(tmdb_id)
+                        st.experimental_rerun()
+        else:
+            st.error("Invalid format for search results. Expected a list of dictionaries.")
 
 # Sidebar for managing selected movies
 selected_movies = st.session_state.get('selected_movies', [])
