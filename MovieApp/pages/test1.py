@@ -13,12 +13,12 @@ if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
 def get_data_from_flask(url_path):
-    url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app/" + url_path
+    url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
     return response.json()
 
 def get_title_from_id(id):
-    df = pd.DataFrame(get_data_from_flask("title_from_id/" + str(id)), columns = ["title"])
+    df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
     return df
 
 
@@ -58,7 +58,7 @@ else:
 
 if st.session_state['movie_title_selected']:
     for movie_title in st.session_state['movie_title_selected']:
-        df = pd.DataFrame(get_data_from_flask("movie_id/" + movie_title), columns = ["movieId"])
+        df = pd.DataFrame(get_data_from_flask("movie_id_from_title/" + movie_title), columns = ["movieId"])
         for movie_id in df['movieId']:
             if movie_id not in st.session_state['movie_id']:
                 st.session_state['movie_id'].append(movie_id)
@@ -75,7 +75,7 @@ if st.session_state['movie_title_selected']:
 
 # rating df
     if 'rating_df' not in st.session_state:
-        rating_df = pd.DataFrame(get_data_from_flask("rating_df"), 
+        rating_df = pd.DataFrame(get_data_from_flask("ratings"), 
                                 columns=['userId', 'movieId', 'rating_im'])
         st.session_state['rating_df'] = rating_df
 
@@ -92,9 +92,9 @@ if st.session_state['movie_title_selected']:
     most_5_similar_users = [index + 1 for index in similarity.argsort()[0][-5:][::-1]]
 
 # Recommendations
-    df = pd.DataFrame(get_data_from_flask("reco/" + str(most_5_similar_users[0]) + "/" + 
-                        str(most_5_similar_users[1]) + "/" + str(most_5_similar_users[2]) + 
-                        "/" + str(most_5_similar_users[3]) + "/" + str(most_5_similar_users[4])), 
+    df = pd.DataFrame(get_data_from_flask("recommendations/" + str(most_5_similar_users[0]) + "," + 
+                        str(most_5_similar_users[1]) + "," + str(most_5_similar_users[2]) + 
+                        "," + str(most_5_similar_users[3]) + "," + str(most_5_similar_users[4])), 
                         columns = ['userId', 'movieId', 'predicted_rating_im_confidence'])
     
     df_filtered = df[~df['movieId'].isin(st.session_state['movie_id'])]
