@@ -10,12 +10,21 @@ def fetch_data(endpoint):
     response = requests.get(full_url)
     return response.json()
 
-# Fetch movie data including posters
-def fetch_movie_data_with_posters(movie_title):
-    movie_id = fetch_data(f"movie_id_from_title/{movie_title.replace(' ', '_')}")
+def get_movie_id(movie_title):
+    # Replace spaces with URL encoded '%20' for the API call
+    movie_id_response = fetch_data(f"movie_id_from_title/{movie_title.replace(' ', '%20')}")
+    if movie_id_response:
+        # Assuming the response format is {'movieId': {'0': actual_id}}
+        return movie_id_response.get('movieId', {}).get('0')
+    return None
+
+def get_poster_url(movie_id):
     if movie_id:
-        poster_url = fetch_data(f"tmdb_id/{movie_id[0]}")  # Assuming tmdb_id endpoint returns the URL
-        return poster_url
+        poster_response = fetch_data(f"tmdb_id/{movie_id}")
+        if poster_response:
+            # Assuming poster_response directly gives you the URL or the path
+            return poster_response
+    return None
 
 # Initialize session state for selected movies
 if 'selected_movies' not in st.session_state:
@@ -29,17 +38,19 @@ st.title("🎬 Movie Selector Interface")
 search_term = st.text_input("Type to search for movies:", placeholder="Start typing...")
 if search_term:
     search_results = fetch_data(f"elastic_search/{search_term}")
-    cols = st.columns(3)  # Adjust the number of columns based on your layout preference
-    for idx, movie in enumerate(search_results):
-        with cols[idx % 3]:  # Looping through columns
-            poster_url = fetch_movie_data_with_posters(movie)
-            if poster_url:
+    if search_results:
+        cols = st.columns(len(search_results))  # Adjust based on number of results
+        for idx, movie in enumerate(search_results):
+            with cols[idx]:
+                movie_id = get_movie_id(movie)
+                poster_url = get_poster_url(movie_id)
+                if poster_url:
+                    st.image(poster_url, caption=movie, width=150)  # Adjust width as necessary
                 if st.button("Select", key=f"select_{movie}"):
                     if movie not in st.session_state['selected_movies']:
                         st.session_state['selected_movies'].append(movie)
                         st.experimental_rerun()
-                st.image(poster_url, caption=movie, width=150)  # Adjust width as necessary
-
+                        
 # Sidebar for managing selected movies
 if st.session_state['selected_movies']:
     st.sidebar.header("Selected Movies")
