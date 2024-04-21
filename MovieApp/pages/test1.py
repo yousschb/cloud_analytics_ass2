@@ -126,8 +126,8 @@ if st.session_state['movie_title_selected']:
 
 # Add to selection
 if st.button("Add to Selection"):
-    st.switch_page('Movie Selection.py')
+    st.switch_page('test.py')
 
 # Clear Selection
 if st.button("Clear Selection", on_click=lambda: st.session_state.pop("movie_title_selected", None)):
-    st.switch_page('Movie Selection.py')
+    st.switch_page('test.py')
