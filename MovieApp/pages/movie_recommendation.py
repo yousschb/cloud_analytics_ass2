@@ -4,30 +4,10 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from urllib.parse import quote  # Import the quote function
 
-def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
-    full_url = f"{base_url}/{endpoint}"
-    try:
-        response = requests.get(full_url)
-        response.raise_for_status()  # Will raise an HTTPError for 4xx/5xx responses
-        return response.json()  # Attempt to return the JSON content
-    except requests.exceptions.HTTPError as err:
-        st.error(f"HTTP error occurred: {err}")
-    except requests.exceptions.RequestException as err:
-        st.error(f"Request failed: {err}")
-    except ValueError:  # Includes simplejson.decoder.JSONDecodeError
-        st.error("Failed to parse JSON, or no JSON returned.")
-    return None  # Return None if any exceptions were raised
-"""
-# Function to interact with the Flask backend
-def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
-    if not endpoint.startswith('/'):
-        endpoint = '/' + endpoint
-    full_url = f"{base_url}{endpoint}"
-    response = requests.get(full_url)
+def fetch_data(url_path):
+    url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app" + url_path
+    response = requests.get(url)
     return response.json()
-        """
 
 # Initialize session state keys with default values if they don't exist.
 if 'selected_movies' not in st.session_state:
