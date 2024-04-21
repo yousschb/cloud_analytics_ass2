@@ -3,7 +3,7 @@ import requests
 
 
 def get_data_from_flask(url_path):
-    url = "https://backenda2-mjz535d2kq-oa.a.run.app/" + url_path
+    url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
     return response.json()
 
