@@ -25,20 +25,23 @@ def execute_bigquery(query):
 @app.route('/movie_titles')
 def list_movie_titles():
     query = "SELECT DISTINCT(title) FROM `caaych2.mo.movies`"
-    results = execute_bigquery(query)
-    return jsonify(results.to_dict(orient='records'))  # Using jsonify to ensure proper JSON format
+    query_job = bigquery_client.query(query)
+    results = query_job.to_dataframe() 
+    return results.to_json()
 
 @app.route('/movie_ids')
 def list_movie_ids():
     query = "SELECT DISTINCT(movieId) FROM `caaych2.mo.movies`"
-    results = execute_bigquery(query)
-    return jsonify(results.to_dict(orient='records'))
+    query_job = bigquery_client.query(query)
+    results = query_job.to_dataframe() 
+    return results.to_json()
 
 @app.route('/ratings')
 def list_ratings():
     query = "SELECT userId, movieId, rating_im FROM `caaych2.mo.ratings`"
-    results = execute_bigquery(query)
-    return jsonify(results.to_dict(orient='records'))
+    query_job = bigquery_client.query(query)
+    results = query_job.to_dataframe() 
+    return results.to_json()
 
 @app.route('/recommendations/<user_ids>')
 def generate_recommendations(user_ids):
@@ -49,8 +52,9 @@ def generate_recommendations(user_ids):
         (SELECT DISTINCT userId FROM `caaych2.mo.ratings` WHERE {user_condition}))
         ORDER BY -(predicted_rating_im_confidence)
     """
-    results = execute_bigquery(query)
-    return jsonify(results.to_dict(orient='records'))
+    query_job = bigquery_client.query(query)
+    results = query_job.to_dataframe() 
+    return results.to_json()
 
 @app.route('/elastic_search/<query>')
 def search_elastic(query):
@@ -65,8 +69,8 @@ def search_elastic(query):
         }
     }
     response = elastic_client.search(index=INDEX_NAME, body=body)
-    titles = [hit['_source']['title'] for hit in response['hits']['hits']]
-    return jsonify(titles)  # Consistently using jsonify for JSON responses
+    suggestions = [hit['_source']['title'] for hit in response['hits']['hits']]
+    return jsonify(suggestions)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
