@@ -63,7 +63,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from urllib.parse import quote  # Import the quote function
 
 def fetch_data(url_path):
-    url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app" + url_path
+    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
+    # Ensure there is a slash separating the base URL and the url_path
+    url = f"{base_url}/{url_path}"
     response = requests.get(url)
     return response.json()
 
