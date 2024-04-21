@@ -113,7 +113,7 @@ if st.session_state['movie_title_selected']:
 
 #  DISPLAY INFO OF RECOMMENDED MOVIES
 
-    API_KEY = "?api_key=81eb26f048683218d8f96f9fab8e8c52"
+    API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
     MOVIE = "https://api.themoviedb.org/3/movie/"
 
     for movie_id in five_movies['movieId']:
