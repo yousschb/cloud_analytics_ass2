@@ -10,15 +10,16 @@ def fetch_data(endpoint):
     response = requests.get(full_url)
     return response.json()
 
-# Function to fetch detailed information about a movie
-def get_movie_details(movie_id):
-    return fetch_data(f"movie_details/{movie_id}")
+# Fetch movie data including posters
+def fetch_movie_data_with_posters(movie_title):
+    movie_id = fetch_data(f"movie_id_from_title/{movie_title.replace(' ', '_')}")
+    if movie_id:
+        poster_url = fetch_data(f"tmdb_id/{movie_id[0]}")  # Assuming tmdb_id endpoint returns the URL
+        return poster_url
 
-# Initialize session state for selected movies and movie IDs
+# Initialize session state for selected movies
 if 'selected_movies' not in st.session_state:
     st.session_state['selected_movies'] = []
-if 'movie_ids' not in st.session_state:
-    st.session_state['movie_ids'] = []
 
 # Configure Streamlit page properties
 st.set_page_config(page_title="Movie Selector", layout='wide')
@@ -27,64 +28,25 @@ st.title("🎬 Movie Selector Interface")
 # Movie search and selection
 search_term = st.text_input("Type to search for movies:", placeholder="Start typing...")
 if search_term:
-    st.subheader("Select from the following results:")
     search_results = fetch_data(f"elastic_search/{search_term}")
-    if search_results is None:
-        st.error("Received no data from the API. Check the API endpoint and its accessibility.")
-    else:
-        # Debugging output
-        st.write("DEBUG: Type of search_results:", type(search_results))
-        st.write("DEBUG: Content of search_results:", search_results)
+    cols = st.columns(3)  # Adjust the number of columns based on your layout preference
+    for idx, movie in enumerate(search_results):
+        with cols[idx % 3]:  # Looping through columns
+            poster_url = fetch_movie_data_with_posters(movie)
+            if poster_url:
+                if st.button("Select", key=f"select_{movie}"):
+                    if movie not in st.session_state['selected_movies']:
+                        st.session_state['selected_movies'].append(movie)
+                        st.experimental_rerun()
+                st.image(poster_url, caption=movie, width=150)  # Adjust width as necessary
 
-        # Iterate over search results assuming each entry is a string (movie title)
-        for movie_title in search_results:
-            if st.button(movie_title, key=f"btn_{movie_title}"):
-                if movie_title not in st.session_state['selected_movies']:
-                    st.session_state['selected_movies'].append(movie_title)
-                    st.experimental_rerun()
 # Sidebar for managing selected movies
-selected_movies = st.session_state.get('selected_movies', [])
-movie_ids = st.session_state.get('movie_ids', [])
-if selected_movies:
+if st.session_state['selected_movies']:
     st.sidebar.header("Selected Movies")
-    for i, movie_title in enumerate(selected_movies):
-        if st.sidebar.button(f"Remove {movie_title}", key=f"remove_{movie_title}"):
-            selected_movies.pop(i)
-            movie_ids.pop(i)
+    for movie in st.session_state['selected_movies']:
+        if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
+            st.session_state['selected_movies'].remove(movie)
             st.experimental_rerun()
-
-        # Display movie details in the main area
-        if st.sidebar.button(f"Show Details for {movie_title}", key=f"details_{movie_title}"):
-            movie_details = get_movie_details(movie_ids[i])
-            st.write(f"**Title:** {movie_details['title']}")
-            st.write(f"**Overview:** {movie_details['overview']}")
-            st.write(f"**Release Date:** {movie_details['release_date']}")
-            st.write(f"**Genres:** {', '.join(genre['name'] for genre in movie_details['genres'])}")
-            if 'poster_path' in movie_details:
-                st.image(f"https://image.tmdb.org/t/p/w500/{movie_details['poster_path']}")
-
-# Custom CSS for button aesthetics
-st.markdown("""
-    <style>
-    .stButton>button {
-        border: 2px solid #4CAF50;
-        color: #FFFFFF;
-        background-color: #4CAF50;
-        padding: 10px 24px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        transition-duration: 0.4s;
-        cursor: pointer;
-        border-radius: 12px;
-    }
-    .stButton>button:hover {
-        background-color: white;
-        color: black;
-        border: 2px solid #4CAF50;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
+    if st.sidebar.button("Get Recommendations"):
+        # Assuming you have a page or method to display recommendations
+        st.switch_page('pages/movie_recommendation.py')
