@@ -1,14 +1,30 @@
 import streamlit as st
 import requests
 
-# Function to interact with the Flask backend
 def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
+    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
     if not endpoint.startswith('/'):
         endpoint = '/' + endpoint
     full_url = f"{base_url}{endpoint}"
-    response = requests.get(full_url)
-    return response.json()
+    
+    try:
+        response = requests.get(full_url)
+        response.raise_for_status()  # This will raise an exception for HTTP errors.
+        # Check if the content type is JSON before decoding
+        if 'application/json' in response.headers.get('Content-Type', ''):
+            return response.json()
+        else:
+            st.error("Invalid response format received. Expected JSON.")
+            return None
+    except requests.exceptions.HTTPError as e:
+        st.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason}")
+        return None
+    except requests.exceptions.RequestException as e:
+        st.error(f"Request failed: {e}")
+        return None
+    except ValueError:
+        st.error("Failed to decode JSON.")
+        return None
 
 def get_movie_id(movie_title):
     # Replace spaces with URL encoded '%20' for the API call
