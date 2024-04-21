@@ -42,7 +42,7 @@ if st.session_state["movie_title_selected"]:
             st.session_state["movie_title_selected"].remove(i)
             st.experimental_rerun()
     if st.sidebar.button("Get Recommendations", type= "primary"):
-        st.switch_page('pages/Recommendations.py')
+        st.switch_page('pages/test1.py')
         
 
 st.markdown(
