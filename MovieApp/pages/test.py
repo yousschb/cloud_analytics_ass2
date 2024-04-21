@@ -1,66 +1,98 @@
 import streamlit as st
 import requests
 
-# Define a function to fetch data from the Flask backend
-def fetch_data(endpoint):
-    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
-    url = f"{base_url}/{endpoint}"
+
+def get_data_from_flask(url_path):
+    url = "https://backenda2-mjz535d2kq-oa.a.run.app/" + url_path
     response = requests.get(url)
     return response.json()
 
-# Initialize session state for managing selected movies
-if 'selected_movies' not in st.session_state:
-    st.session_state['selected_movies'] = []
+if 'movie_title_selected' not in st.session_state:
+    st.session_state['movie_title_selected'] = list()
 
-# Set page configuration and title
-st.set_page_config(page_title="Movie Recommendation System", layout="wide")
-st.title("🎬 Movie Recommendation System")
+st.set_page_config(page_title="Movie Recommendation")
+st.markdown("<h1 style='text-align: center;'>Movie Recomendation</h1>", unsafe_allow_html=True)
 
-# Movie search and selection
-search_query = st.text_input("Search for a movie title here:")
-if search_query:
-    results = fetch_data(f"elastic_search/{search_query}")
-    if results:
-        st.subheader("Select from the following results:")
-        for movie in results:
-            if st.button(movie, key=f"select_{movie}"):
-                if movie not in st.session_state['selected_movies']:
-                    st.session_state['selected_movies'].append(movie)
+st.title("Movie Selection")
 
-# Sidebar for managing selected movies
-if st.session_state['selected_movies']:
-    st.sidebar.header("Selected Movies:")
-    for movie in st.session_state['selected_movies']:
-        if st.sidebar.button(f"Remove {movie}", key=f"remove_{movie}"):
-            st.session_state['selected_movies'].remove(movie)
+# Could not deploy elastic search backend on cloud run i had a previous version
+# running without the elastic search and i could not deploy the new version with elastic search
+# The function are in the backend.py file
 
-    # Button to get recommendations
-    if st.sidebar.button("Get Recommendations"):
-        # Create a string of selected movie IDs for the API call
-        selected_movie_ids = ','.join([str(fetch_data(f"movie_id_from_title/{movie}")['movieId']) for movie in st.session_state['selected_movies']])
-        recommendations = fetch_data(f"recommendations/{selected_movie_ids}")
+# in this version it works
+
+# elastic search autocomplete search
+movies_query = st.text_input("Search for a movie title here")
+if movies_query:
+    st.write("Results  (Click To Select):")
+    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
+    if autocomplete_results:
+        for i in autocomplete_results:
+            button_key = f"select_{i}"
+            if st.button(f"{i}", key=button_key, type="primary"):
+                if i not in st.session_state['movie_title_selected']:
+                    st.session_state['movie_title_selected'].append(i)
+
+
+# display selected movies in sidebar and a button to remove them 
+if st.session_state["movie_title_selected"]:
+    st.sidebar.write("You have selected these movies (Click to remove):")
+    for i in st.session_state["movie_title_selected"]:
+        if st.sidebar.button(f"{i}", key=f"remove_{i}", type="secondary"):
+            st.session_state["movie_title_selected"].remove(i)
+            st.experimental_rerun()
+    if st.sidebar.button("Get Recommendations", type= "primary"):
+        st.switch_page('pages/Recommendations.py')
         
-        # Display recommended movies
-        st.sidebar.header("Movie Recommendations:")
-        for rec in recommendations:
-            st.sidebar.write(rec)
 
-# CSS for buttons and layout adjustments
-st.markdown("""
+st.markdown(
+    """
     <style>
-    .stButton>button {
-        font-size: 16px;
-        border: 2px solid #4CAF50;
-        line-height: 1.5;
-        border-radius: 5px;
-        padding: 5px 20px;
-        background-color: transparent;
-        color: #4CAF50;
+    button[kind="primary"] {
+        padding: 10px 25px;
+        font-family: "Roboto", sans-serif;
+        font-weight: 500;
+        background: transparent;
+        outline: none !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+        border: 2px solid rgb(220, 220, 220);
+        z-index: 1;
+        color: grey;
     }
-    .stButton>button:hover {
-        border-color: #45a049;
-        color: white;
-        background-color: #4CAF50;
+    button[kind="primary"]:hover {
+        text-decoration: none;
+        outline: none !important;
+        color: black !important;
     }
-    </style>
-""", unsafe_allow_html=True)
+    button[kind="primary"]:after {
+        position: absolute;
+        content: "";
+        width: 0;
+        outline: none !important;
+        height: 100%;
+        top: 0;
+        left: 0;
+        direction: rtl;
+        z-index: -1;
+        background: rgb(255, 255, 255);
+        transition: all 0.5s ease;
+    }
+    button[kind="primary"]:hover:after {
+    left: auto;
+    right: 0;
+    outline: none !important;
+    width: 100%;
+    }
+    button[kind="primary"]:hover span {
+        background: black;
+        outline: none !important;
+    }
+</style>
+
+
+    """,
+    unsafe_allow_html=True,
+)
