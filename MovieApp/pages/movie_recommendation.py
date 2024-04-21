@@ -62,12 +62,14 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from urllib.parse import quote  # Import the quote function
 
-def fetch_data(url_path):
-    base_url = "https://cloud-analytics-ass203-gev3pcymxa-uc.a.run.app"
-    # Ensure there is a slash separating the base URL and the url_path
-    url = f"{base_url}/{url_path}"
-    response = requests.get(url)
+def fetch_data(endpoint):
+    base_url = "https://cloud-analytics-ass2-gev3pcymxa-uc.a.run.app"
+    if not endpoint.startswith('/'):
+        endpoint = '/' + endpoint
+    full_url = f"{base_url}{endpoint}"
+    response = requests.get(full_url)
     return response.json()
+
 
 def get_movie_details(tmdb_id):
     url = f"https://api.themoviedb.org/3/movie/{tmdb_id}?api_key=your_api_key"
