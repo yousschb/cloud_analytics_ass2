@@ -36,18 +36,12 @@ if search_term:
         st.write("DEBUG: Type of search_results:", type(search_results))
         st.write("DEBUG: Content of search_results:", search_results)
 
-        # Ensure search_results is a list of dictionaries before iterating
-        if isinstance(search_results, list) and all(isinstance(movie, dict) for movie in search_results):
-            for movie in search_results:
-                movie_title = movie['title']
-                tmdb_id = movie['id']
-                if st.button(movie_title, key=f"btn_{tmdb_id}"):
-                    if tmdb_id not in st.session_state['movie_ids']:
-                        st.session_state['movie_ids'].append(tmdb_id)
-                        st.experimental_rerun()
-        else:
-            st.error("Invalid format for search results. Expected a list of dictionaries.")
-
+        # Iterate over search results assuming each entry is a string (movie title)
+        for movie_title in search_results:
+            if st.button(movie_title, key=f"btn_{movie_title}"):
+                if movie_title not in st.session_state['selected_movies']:
+                    st.session_state['selected_movies'].append(movie_title)
+                    st.experimental_rerun()
 # Sidebar for managing selected movies
 selected_movies = st.session_state.get('selected_movies', [])
 movie_ids = st.session_state.get('movie_ids', [])
