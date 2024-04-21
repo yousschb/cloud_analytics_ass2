@@ -116,7 +116,7 @@ if st.session_state['movie_ids']:
             st.session_state['movie_ids'].remove(tmdb_id)
             st.experimental_rerun()
 
-# This can be used in your recommendation fetching code
+# Define a button for getting recommendations
 if st.sidebar.button("Get Recommendations"):
     if st.session_state['selected_movies']:
         movie_ids = []
@@ -127,21 +127,18 @@ if st.sidebar.button("Get Recommendations"):
                 movie_ids.append(movie_data['movieId'])
             else:
                 st.error(f"Failed to fetch ID for {movie}. Ensure the title is correct and try again.")
-
+        
         if movie_ids:
-            # Fetch user ratings matrix
             ratings = fetch_data("ratings")
             if ratings:
                 df = pd.DataFrame(ratings)
-                user_matrix = df.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
-            else:
-                st.error("Failed to fetch ratings data. Check the backend service for issues.")
+                user_matrix = df.pivot(index='userId', columns='movieId', values='rating').fillna(0)
 
                 new_user_profile = pd.DataFrame(0, index=['new_user'], columns=user_matrix.columns)
                 for movie_id in movie_ids:
                     if movie_id in new_user_profile.columns:
                         new_user_profile.at['new_user', movie_id] = 1.0  # Assume max rating
-                
+
                 similarity = cosine_similarity(new_user_profile, user_matrix)
                 similar_users = similarity.argsort()[0][-4:-1]  # Top 3 similar users
                 recommendations = fetch_data(f"recommendations/{','.join(map(str, similar_users))}")
@@ -154,11 +151,8 @@ if st.sidebar.button("Get Recommendations"):
                             st.write(movie_details['title'])
                 else:
                     st.error("No recommendations found. There might be an issue with the recommendation engine.")
-
-                else:
-                    st.error("No recommendations found.")
             else:
-                st.error("Failed to fetch ratings data.")
+                st.error("Failed to fetch ratings data. Check the backend service for issues.")
         else:
             st.sidebar.error("Failed to fetch movie IDs for selected movies.")
     else:
