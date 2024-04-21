@@ -78,22 +78,6 @@ def generate_recommendations(user_ids):
     results = execute_bigquery(query)
     return results.to_json()
 
-
-@app.route('/elastic_search/<query>')
-def search_elastic(query):
-    body = {
-        "query": {
-            "match_phrase_prefix": {
-                "title": {
-                    "query": query,
-                    "max_expansions": 10
-                }
-            }
-        }
-    }
-    response = elastic_client.search(index=INDEX_NAME, body=body)
-    titles = [hit['_source']['title'] for hit in response['hits']['hits']]
-    return jsonify(titles)
     
 @app.route('/tmdb_id/<movie_id>')
 def tmdb_id(movie_id):
@@ -113,6 +97,22 @@ def title_from_movie_id(movie_id):
     query = f"SELECT title FROM `caaych2.mo.movies` WHERE movieId = {movie_id}"
     results = execute_bigquery(query)
     return results.to_json()
+
+@app.route('/elastic_search/<query>')
+def search_elastic(query):
+    body = {
+        "query": {
+            "match_phrase_prefix": {
+                "title": {
+                    "query": query,
+                    "max_expansions": 10
+                }
+            }
+        }
+    }
+    response = elastic_client.search(index=INDEX_NAME, body=body)
+    suggestions = [hit['_source']['title'] for hit in response['hits']['hits']]
+    return jsonify(suggestions)
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
