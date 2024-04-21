@@ -79,12 +79,12 @@ if st.sidebar.button("Get Recommendations"):
     if st.session_state['selected_movies']:
         movie_ids = []
         for movie in st.session_state['selected_movies']:
-            encoded_movie_title = quote(movie)
+            encoded_movie_title = quote(movie)  # Properly encode the movie title to handle special characters
             movie_data = fetch_data(f"movie_id_from_title/{encoded_movie_title}")
             if movie_data and 'movieId' in movie_data:
                 movie_ids.append(movie_data['movieId'])
             else:
-                st.error(f"Failed to fetch data for {movie}")
+                st.error(f"Failed to fetch ID for {movie}. Ensure the title is correct and try again.")
 
         if movie_ids:
             # Fetch user ratings matrix
@@ -92,24 +92,27 @@ if st.sidebar.button("Get Recommendations"):
             if ratings:
                 df = pd.DataFrame(ratings)
                 user_matrix = df.pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
+            else:
+                st.error("Failed to fetch ratings data. Check the backend service for issues.")
 
-                # Create new user profile
                 new_user_profile = pd.DataFrame(0, index=['new_user'], columns=user_matrix.columns)
                 for movie_id in movie_ids:
                     if movie_id in new_user_profile.columns:
                         new_user_profile.at['new_user', movie_id] = 1.0  # Assume max rating
-
-                # Calculate cosine similarity and find top 3 similar users
+                
                 similarity = cosine_similarity(new_user_profile, user_matrix)
                 similar_users = similarity.argsort()[0][-4:-1]  # Top 3 similar users
                 recommendations = fetch_data(f"recommendations/{','.join(map(str, similar_users))}")
 
                 if recommendations:
-                    st.header("We recommend these movies based on your preferences:")
+                    st.header("Recommended Movies:")
                     for rec in recommendations:
                         movie_details = fetch_data(f"title_from_movie_id/{rec['movieId']}")
                         if movie_details:
                             st.write(movie_details['title'])
+                else:
+                    st.error("No recommendations found. There might be an issue with the recommendation engine.")
+
                 else:
                     st.error("No recommendations found.")
             else:
