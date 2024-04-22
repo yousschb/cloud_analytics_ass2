@@ -39,7 +39,7 @@ def fetch_movie_id(title):
 
 def display_movie_poster(movie_id):
     if movie_id:
-        response = requests.get(f"{MOVIE_DB_BASE_URL}{movie_id}?api_key={API_KEY}")
+        response = requests.get(f"{MOVIE}{movie_id}?api_key={API_KEY}")
         data = response.json()
         col1, col2 = st.columns([1, 3])
         with col1:
