@@ -74,12 +74,12 @@ if st.session_state['movie_title_selected']:
 
 
 # rating df
-    if 'rating_df' not in st.session_state:
-        rating_df = pd.DataFrame(get_data_from_flask("ratings"), 
+    if 'ratings' not in st.session_state:
+        ratings = pd.DataFrame(get_data_from_flask("ratings"), 
                                 columns=['userId', 'movieId', 'rating_im'])
-        st.session_state['rating_df'] = rating_df
+        st.session_state['ratings'] = ratings
 
-    user_matrix = st.session_state['rating_df'].pivot_table(index = 'userId', 
+    user_matrix = st.session_state['ratings'].pivot_table(index = 'userId', 
                                                             columns = 'movieId', values = 'rating_im')
     user_matrix = user_matrix.fillna(0)
     #  (610, 9724)
