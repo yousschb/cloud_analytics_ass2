@@ -64,8 +64,9 @@ def display_info(movie_id):
     
 
 
-
+"""
 st.set_page_config(page_title="Movie Reco")
+"""
 st.markdown("<h1 style='text-align: center;'>Recommendations</h1>", unsafe_allow_html=True)
 
 # display selected movies in sidebar    
