@@ -20,6 +20,7 @@ def get_data_from_flask(url_path):
         url_path = '/' + url_path
     url = base_url + url_path
     response = requests.get(url)
+    """
     if response.status_code == 200:
         try:
             return response.json()
@@ -29,7 +30,7 @@ def get_data_from_flask(url_path):
     else:
         st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
         return None
-
+"""
 
 def get_title_from_id(id):
     df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
