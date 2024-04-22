@@ -27,16 +27,9 @@ def get_data_from_flask(url_path):
             st.error("Invalid JSON response")
             return None
     else:
-        st.error(f"Based on the movies you selected, we recommend you to watch these movies :")
+        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
         return None
 
-
-def get_data_from_flask(url_path):
-    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/"
-    url = base_url + url_path
-    response = requests.get(url)
-    return response.json()
-   
 
 def get_title_from_id(id):
     df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
@@ -61,6 +54,8 @@ def display_info(movie_id):
             st.write(f"Release Date: {data['release_date']}")
             st.write(f"Vote Average: {data['vote_average']}")
     
+
+
 
 st.set_page_config(page_title="Movie Reco")
 st.markdown("<h1 style='text-align: center;'>Recommendations</h1>", unsafe_allow_html=True)
