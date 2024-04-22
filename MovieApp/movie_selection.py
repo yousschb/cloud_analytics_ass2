@@ -44,7 +44,7 @@ if movies_query:
 if st.session_state.get("movie_title_selected"):
     st.sidebar.header("Selected Movies")
     for i in st.session_state["movie_title_selected"]:
-        if st.sidebar.button(f"Remove {i}", key=f"remove_{i}"):
+        if st.sidebar.button(f" {i}", key=f"remove_{i}"):
             st.session_state["movie_title_selected"].remove(i)
             st.rerun()
     if st.sidebar.button("Get Recommendations", help="Click to get movie recommendations based on your selection"):
