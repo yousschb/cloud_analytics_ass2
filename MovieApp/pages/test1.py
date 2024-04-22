@@ -13,9 +13,18 @@ if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
 def get_data_from_flask(url_path):
-    url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/" + url_path
+    url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app" + url_path
     response = requests.get(url)
-    return response.json()
+    if response.status_code == 200:  # Vérifie que le code de statut HTTP est 200 (OK)
+        try:
+            return response.json()  # Tente de décoder la réponse en JSON
+        except ValueError:  # Capture les erreurs de décodage JSON
+            st.error("Failed to decode JSON from response")
+            return None
+    else:
+        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
+        return None
+
 
 def get_title_from_id(id):
     df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
