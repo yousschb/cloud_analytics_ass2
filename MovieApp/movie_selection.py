@@ -4,6 +4,8 @@ import requests
 API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
 MOVIE = "https://api.themoviedb.org/3/movie/"
 
+st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
+
 
 def get_data_from_flask(url_path):
     url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/" + url_path
@@ -12,8 +14,6 @@ def get_data_from_flask(url_path):
 
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
-
-st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
 
 # Style personnalisé pour améliorer l'esthétique de la page
 st.markdown("""
