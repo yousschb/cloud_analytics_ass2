@@ -26,9 +26,11 @@ def get_data_from_flask(url_path):
         except ValueError:
             st.error("Invalid JSON response")
             return None
+"""
     else:
         st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
         return None
+"""
 
 
 def get_title_from_id(id):
