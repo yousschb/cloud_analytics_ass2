@@ -11,10 +11,7 @@ if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
     
 """
-nost.set_page_config(page_title="Movie Recommendation")
-st.markdown("<h1 style='text-align: center;'>Movie Recomendation</h1>", unsafe_allow_html=True)
 
-st.title("Movie Selection")
 
 
 
