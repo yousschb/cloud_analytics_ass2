@@ -32,7 +32,7 @@ def get_data_from_flask(url_path):
 """
 
 def get_data_from_flask(title):
-    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
+    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/"
     # Encode le titre pour l'usage dans l'URL
     encoded_title = quote(title)
     url_path = f"/movie_id_from_title/{encoded_title}"
