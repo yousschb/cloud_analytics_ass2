@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 
+API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
+MOVIE = "https://api.themoviedb.org/3/movie/"
+
 
 def get_data_from_flask(url_path):
     url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app/" + url_path
@@ -28,7 +31,22 @@ st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Mo
 st.write("## Movie Selection")
 st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
+# Champ de recherche centré avec autocomplete
+movies_query = st.text_input("", placeholder="Type to search for movies...")
+if movies_query:
+    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
+    if autocomplete_results:
+        cols = st.columns(len(autocomplete_results))
+        for movie, col in zip(autocomplete_results, cols):
+            with col:
+                movie_details = requests.get(f"{MOVIE_DB_BASE_URL}{movie['id']}?api_key={API_KEY}").json()
+                poster_url = f"https://image.tmdb.org/t/p/original{movie_details['poster_path']}"
+                st.image(poster_url, width=150, caption=movie['title'])
+                if st.button("Select", key=f"select_{movie['title']}"):
+                    if movie['title'] not in st.session_state.get('movie_title_selected', []):
+                        st.session_state['movie_title_selected'].append(movie['title'])
 
+"""
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
@@ -40,7 +58,7 @@ if movies_query:
             if st.button(i, key=button_key):
                 if i not in st.session_state.get('movie_title_selected', []):
                     st.session_state['movie_title_selected'].append(i)
-
+"""
 
 # Affichage esthétique des films sélectionnés dans la barre latérale
 if st.session_state.get("movie_title_selected"):
