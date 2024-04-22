@@ -31,6 +31,20 @@ st.write("Search for a movie title below and select from the autocomplete sugges
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
+    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
+    if autocomplete_results:
+        cols = st.columns(len(autocomplete_results))
+        for movie, col in zip(autocomplete_results, cols):
+            with col:
+                st.markdown(f"<div class='image-container' onclick='window.location=\"{st.session_state['url']}\";'><img src='{movie['poster_url']}' alt='Movie Poster'><p>{movie['title']}</p></div>", unsafe_allow_html=True)
+                if st.button("Select", key=f"select_{movie['title']}"):
+                    if movie['title'] not in st.session_state.get('movie_title_selected', []):
+                        st.session_state['movie_title_selected'].append(movie['title'])
+
+"""
+# Champ de recherche centré avec autocomplete
+movies_query = st.text_input("", placeholder="Type to search for movies...")
+if movies_query:
     st.write("### Results (Click To Select):")
     autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
     if autocomplete_results:
@@ -39,6 +53,7 @@ if movies_query:
             if st.button(i, key=button_key):
                 if i not in st.session_state.get('movie_title_selected', []):
                     st.session_state['movie_title_selected'].append(i)
+"""
 
 # Affichage esthétique des films sélectionnés dans la barre latérale
 if st.session_state.get("movie_title_selected"):
