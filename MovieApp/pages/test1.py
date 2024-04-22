@@ -13,7 +13,7 @@ if 'movie_title_selected' not in st.session_state:
 if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
-"""
+
 def get_data_from_flask(url_path):
     base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
     if not url_path.startswith('/'):
@@ -29,7 +29,6 @@ def get_data_from_flask(url_path):
     else:
         st.error(f"Based on the movies you selected, we recommend you to watch these movies :")
         return None
-"""
 
 
 def get_data_from_flask(url_path):
@@ -63,10 +62,7 @@ def display_info(movie_id):
             st.write(f"Vote Average: {data['vote_average']}")
     
 
-
-"""
 st.set_page_config(page_title="Movie Reco")
-"""
 st.markdown("<h1 style='text-align: center;'>Recommendations</h1>", unsafe_allow_html=True)
 
 # display selected movies in sidebar    
