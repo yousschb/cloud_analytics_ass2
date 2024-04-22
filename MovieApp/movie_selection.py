@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-
+import pandas as pd
 API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
 MOVIE = "https://api.themoviedb.org/3/movie/"
 
