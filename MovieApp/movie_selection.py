@@ -9,17 +9,14 @@ def get_data_from_flask(url_path):
 
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
-
+    
+"""
 st.set_page_config(page_title="Movie Recommendation")
 st.markdown("<h1 style='text-align: center;'>Movie Recomendation</h1>", unsafe_allow_html=True)
 
 st.title("Movie Selection")
 
-# Could not deploy elastic search backend on cloud run i had a previous version
-# running without the elastic search and i could not deploy the new version with elastic search
-# The function are in the backend.py file
 
-# in this version it works
 
 # elastic search autocomplete search
 movies_query = st.text_input("Search for a movie title here")
@@ -43,8 +40,47 @@ if st.session_state["movie_title_selected"]:
             st.experimental_rerun()
     if st.sidebar.button("Get Recommendations", type= "primary"):
         st.switch_page('pages/movie_recommendation.py')
-        
+        """
+st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
 
+# Style personnalisé pour améliorer l'esthétique de la page
+st.markdown("""
+<style>
+    h1 { text-align: center; }
+    .stTextInput { width: 50%; margin-left: auto; margin-right: auto; }
+    .stButton>button { width: 100%; margin: 5px 0; }
+    .css-18e3th9 { padding: 1rem; }
+</style>
+""", unsafe_allow_html=True)
+
+# Beau titre avec une meilleure typographie
+st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #4CAF50;'>Movie Recommendation System</h1>", unsafe_allow_html=True)
+
+st.write("## Movie Selection")
+st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
+
+# Champ de recherche centré avec autocomplete
+movies_query = st.text_input("", placeholder="Type to search for movies...")
+if movies_query:
+    st.write("### Results (Click To Select):")
+    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
+    if autocomplete_results:
+        for i in autocomplete_results:
+            button_key = f"select_{i}"
+            if st.button(i, key=button_key):
+                if i not in st.session_state.get('movie_title_selected', []):
+                    st.session_state['movie_title_selected'].append(i)
+
+# Affichage esthétique des films sélectionnés dans la barre latérale
+if st.session_state.get("movie_title_selected"):
+    st.sidebar.header("Selected Movies")
+    for i in st.session_state["movie_title_selected"]:
+        if st.sidebar.button(f"Remove {i}", key=f"remove_{i}"):
+            st.session_state["movie_title_selected"].remove(i)
+            st.experimental_rerun()
+    if st.sidebar.button("Get Recommendations", help="Click to get movie recommendations based on your selection"):
+        st.switch_page('pages/movie_recommendation.py')
+        
 st.markdown(
     """
     <style>
