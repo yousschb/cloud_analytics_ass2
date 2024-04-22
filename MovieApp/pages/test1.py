@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 import requests
 import time
+from urllib.parse import quote
 
 
 
@@ -12,10 +13,29 @@ if 'movie_title_selected' not in st.session_state:
 if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
+"""
 def get_data_from_flask(url_path):
     base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
     if not url_path.startswith('/'):
         url_path = '/' + url_path
+    url = base_url + url_path
+    response = requests.get(url)
+    if response.status_code == 200:
+        try:
+            return response.json()
+        except ValueError:
+            st.error("Invalid JSON response")
+            return None
+    else:
+        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
+        return None
+"""
+
+def get_data_from_flask(title):
+    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
+    # Encode le titre pour l'usage dans l'URL
+    encoded_title = quote(title)
+    url_path = f"/movie_id_from_title/{encoded_title}"
     url = base_url + url_path
     response = requests.get(url)
     if response.status_code == 200:
