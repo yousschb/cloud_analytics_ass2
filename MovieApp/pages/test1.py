@@ -27,7 +27,7 @@ def get_data_from_flask(url_path):
             st.error("Invalid JSON response")
             return None
     else:
-        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
+        st.error(f"Based on the movies you selected, we recommend you to watch these movies :")
         return None
 
 
