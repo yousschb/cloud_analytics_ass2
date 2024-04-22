@@ -39,16 +39,24 @@ def fetch_movie_id(title):
 
 def display_movie_poster(movie_id):
     if movie_id:
-        response = requests.get(f"{MOVIE}{movie_id}?api_key={API_KEY}")
+        response = requests.get(f"{MOVIE_DB_BASE_URL}{movie_id}?api_key={API_KEY}")
         data = response.json()
         col1, col2 = st.columns([1, 3])
         with col1:
-            st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=150)
+            if 'poster_path' in data and data['poster_path'] is not None:
+                poster_url = "https://image.tmdb.org/t/p/original" + data['poster_path']
+                st.image(poster_url, width=150)
+            else:
+                st.write("No poster available")  # Gérer le cas où il n'y a pas de poster
+
         with col2:
-            st.write(data['title'])
-            if st.button("Select", key=f"select_{data['id']}"):
-                if data['title'] not in st.session_state.get('movie_title_selected', []):
-                    st.session_state['movie_title_selected'].append(data['title'])
+            if 'title' in data:
+                st.write(data['title'])
+                if st.button("Select", key=f"select_{data['title']}"):
+                    if data['title'] not in st.session_state.get('movie_title_selected', []):
+                        st.session_state['movie_title_selected'].append(data['title'])
+            else:
+                st.write("No title available")  # Gérer le cas où il n'y a pas de titre
 
 
 # Champ de recherche centré avec autocomplete
