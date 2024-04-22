@@ -12,7 +12,10 @@ if 'movie_title_selected' not in st.session_state:
     
 """
 
+st.set_page_config(page_title="Movie Recommendation")
+st.markdown("<h1 style='text-align: center;'>Movie Recomendation</h1>", unsafe_allow_html=True)
 
+st.title("Movie Selection")
 
 
 # elastic search autocomplete search
