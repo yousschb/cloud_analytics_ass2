@@ -39,7 +39,7 @@ if movies_query:
         cols = st.columns(len(autocomplete_results))
         for movie, col in zip(autocomplete_results, cols):
             with col:
-                movie_details = requests.get(f"{MOVIE_DB_BASE_URL}{movie['id']}?api_key={API_KEY}").json()
+                movie_details = requests.get(f"{MOVIE}{movie['id']}?api_key={API_KEY}").json()
                 poster_url = f"https://image.tmdb.org/t/p/original{movie_details['poster_path']}"
                 st.image(poster_url, width=150, caption=movie['title'])
                 if st.button("Select", key=f"select_{movie['title']}"):
