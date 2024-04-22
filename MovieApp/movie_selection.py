@@ -50,11 +50,6 @@ def display_movie_poster(movie_id):
                 if data['title'] not in st.session_state.get('movie_title_selected', []):
                     st.session_state['movie_title_selected'].append(data['title'])
 
-st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
-
-st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF5733;'>Movie Recommendation System</h1>", unsafe_allow_html=True)
-st.write("## Movie Selection")
-st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
