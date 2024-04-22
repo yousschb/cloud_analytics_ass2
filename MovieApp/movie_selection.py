@@ -31,24 +31,39 @@ st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Mo
 st.write("## Movie Selection")
 st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
+def fetch_movie_id(title):
+    data = get_data_from_flask(f"movie_id_from_title/{title}")
+    if data:
+        return pd.DataFrame(data, columns=["movieId"]).iloc[0]['movieId']
+    return None
+
+def display_movie_poster(movie_id):
+    if movie_id:
+        response = requests.get(f"{MOVIE}{movie_id}?api_key={API_KEY}")
+        data = response.json()
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=150)
+        with col2:
+            st.write(data['title'])
+            if st.button("Select", key=f"select_{data['id']}"):
+                if data['title'] not in st.session_state.get('movie_title_selected', []):
+                    st.session_state['movie_title_selected'].append(data['title'])
+
+st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
+
+st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF5733;'>Movie Recommendation System</h1>", unsafe_allow_html=True)
+st.write("## Movie Selection")
+st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
+
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
     autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
     if autocomplete_results:
-        cols = st.columns(len(autocomplete_results))
         for movie_title in autocomplete_results:
-            with cols[autocomplete_results.index(movie_title)]:
-                movie_id_data = get_data_from_flask(f"movie_id_from_title/{movie_title}")
-                if movie_id_data:
-                    movie_id = movie_id_data[0]['movieId']  # Supposons que le premier ID est le bon
-                    movie_details = requests.get(f"{MOVIE}{movie_id}?api_key={API_KEY}").json()
-                    poster_url = f"https://image.tmdb.org/t/p/original{movie_details['poster_path']}"
-                    st.image(poster_url, width=150, caption=movie_details['title'])
-                    if st.button("Select", key=f"select_{movie_details['title']}"):
-                        if movie_details['title'] not in st.session_state.get('movie_title_selected', []):
-                            st.session_state['movie_title_selected'].append(movie_details['title'])
-
+            movie_id = fetch_movie_id(movie_title)
+            display_movie_poster(movie_id)
 """
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
