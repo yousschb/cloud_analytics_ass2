@@ -23,7 +23,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Beau titre avec une meilleure typographie
-st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #4CAF50;'>Movie Recommendation System</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #2CAF50;'>Movie Recommender </h1>", unsafe_allow_html=True)
 
 st.write("## Movie Selection")
 st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
