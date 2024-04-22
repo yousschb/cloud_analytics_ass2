@@ -31,43 +31,6 @@ st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Mo
 st.write("## Movie Selection")
 st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
-def fetch_movie_id(title):
-    data = get_data_from_flask(f"movie_id_from_title/{title}")
-    if data:
-        return pd.DataFrame(data, columns=["movieId"]).iloc[0]['movieId']
-    return None
-
-def display_movie_poster(movie_id):
-    if movie_id:
-        response = requests.get(f"{MOVIE}{movie_id}?api_key={API_KEY}")
-        data = response.json()
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            if 'poster_path' in data and data['poster_path'] is not None:
-                poster_url = "https://image.tmdb.org/t/p/original" + data['poster_path']
-                st.image(poster_url, width=150)
-            else:
-                st.write("No poster available")  # Gérer le cas où il n'y a pas de poster
-
-        with col2:
-            if 'title' in data:
-                st.write(data['title'])
-                if st.button("Select", key=f"select_{data['title']}"):
-                    if data['title'] not in st.session_state.get('movie_title_selected', []):
-                        st.session_state['movie_title_selected'].append(data['title'])
-            else:
-                st.write("No title available")  # Gérer le cas où il n'y a pas de titre
-
-
-# Champ de recherche centré avec autocomplete
-movies_query = st.text_input("", placeholder="Type to search for movies...")
-if movies_query:
-    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
-    if autocomplete_results:
-        for movie_title in autocomplete_results:
-            movie_id = fetch_movie_id(movie_title)
-            display_movie_poster(movie_id)
-"""
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
@@ -79,7 +42,7 @@ if movies_query:
             if st.button(i, key=button_key):
                 if i not in st.session_state.get('movie_title_selected', []):
                     st.session_state['movie_title_selected'].append(i)
-"""
+
 
 # Affichage esthétique des films sélectionnés dans la barre latérale
 if st.session_state.get("movie_title_selected"):
