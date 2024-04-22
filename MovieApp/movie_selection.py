@@ -9,6 +9,8 @@ def get_data_from_flask(url_path):
 
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
+
+st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
     
 """
 
@@ -41,7 +43,7 @@ if st.session_state["movie_title_selected"]:
     if st.sidebar.button("Get Recommendations", type= "primary"):
         st.switch_page('pages/movie_recommendation.py')
         """
-st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
+
 
 # Style personnalisé pour améliorer l'esthétique de la page
 st.markdown("""
