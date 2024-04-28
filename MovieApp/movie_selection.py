@@ -59,12 +59,12 @@ if st.sidebar.button("Get Recommendations", help="Click to get movie recommendat
 st.markdown("""
 <style>
     body {
-        background-color: #f0f2f6; /* Couleur de fond assortie autour de la barre de recherche */
+        background-color: #f0f2f6;
     }
 
     h1 { text-align: center; }
 
-    /* Amélioration du style pour les entrées de texte */
+    /* Improved styling for text inputs */
     .stTextInput > div > div > input {
         width: 70%; 
         margin: 20px auto;
@@ -76,7 +76,7 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    /* Styles spécifiques pour les boutons de résultats sous la barre de recherche */
+    /* Specific styles for result buttons under the search bar */
     .stButton > button {
         width: 70%;
         margin: 10px auto;
@@ -91,14 +91,14 @@ st.markdown("""
         transition: all 0.3s ease;
     }
 
-    /* Effets de survol pour les boutons de résultats sous la barre de recherche */
+    /* Hover effects for result buttons under the search bar */
     .stButton > button:hover {
         background-color: #333; /* Fond plus sombre au survol */
         color: white;
         border-color: #FF0000; /* Bordure rouge maintenue */
     }
 
-    /* Maintenir les styles existants pour les boutons dans la sidebar */
+    /* Styles for the sidebar */
     .stSidebar .stButton > button {
         background-color: #FF0000; /* Fond rouge */
         color: white; /* Texte blanc */
