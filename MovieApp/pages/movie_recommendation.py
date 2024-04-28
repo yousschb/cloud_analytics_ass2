@@ -15,7 +15,7 @@ if "movie_id" not in st.session_state:
 
 
 def get_data_from_flask(url_path):
-    base_url = "https://cloud-analytics-ass207-gev3pcymxa-uc.a.run.app"
+    base_url = "https://cloud-analytics-ass212-gev3pcymxa-uc.a.run.app"
     if not url_path.startswith('/'):
         url_path = '/' + url_path
     url = base_url + url_path
