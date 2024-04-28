@@ -14,21 +14,11 @@ if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
 
+# Function to fetch data from Flask backend
 def fetch_flask_data(url_path):
-    base_url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app"
-    if not url_path.startswith('/'):
-        url_path = '/' + url_path
-    url = base_url + url_path
+    url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
-    if response.status_code == 200:
-        try:
-            return response.json()
-        except ValueError:
-            st.error("Invalid JSON response")
-            return None
-    else:
-        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
-        return None
+    return response.json()
 
 
 def get_title_from_id(id):
