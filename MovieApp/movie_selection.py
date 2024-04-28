@@ -44,14 +44,15 @@ if movies_query:
                     st.session_state['movie_title_selected'].append(i)
 
 
-# Affichage esthétique des films sélectionnés dans la barre latérale
+# Sidebar Display of Selected Films
 if st.session_state.get("movie_title_selected"):
-    st.sidebar.header("Selected Movies")
-    for i in st.session_state["movie_title_selected"]:
-        if st.sidebar.button(f" {i}", key=f"remove_{i}"):
-            st.session_state["movie_title_selected"].remove(i)
+    st.sidebar.header("Your Watchlist")
+    for selected_movie in st.session_state["movie_title_selected"]:
+        if st.sidebar.button(f"Remove: {selected_movie}", key=f"remove_{selected_movie}"):
+            st.session_state["movie_title_selected"].remove(selected_movie)
             st.rerun()
-    if st.sidebar.button("Get Recommendations", help="Click to get movie recommendations based on your selection"):
+
+    if st.sidebar.button("Generate Recommendations", help="Click to discover films similar to your selections"):
         st.switch_page('pages/movie_recommendation.py')
         
 st.markdown(
