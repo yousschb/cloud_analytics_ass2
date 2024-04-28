@@ -22,7 +22,7 @@ if 'movie_title_selected' not in st.session_state:
 # Main Page Header with added spacing via HTML
 st.markdown("""
 <h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender</h1>
-<br>  <!-- HTML line break for extra space -->
+<br>  
 """, unsafe_allow_html=True)
 
 # Additional space before the introductory text
@@ -58,10 +58,14 @@ if st.sidebar.button("Get Recommendations", help="Click to get movie recommendat
 # Styles
 st.markdown("""
 <style>
-    /* General styles for the page header */
+    /* Change the overall background color */
+    body {
+        background-color: #f0f2f6; /* Matching the grey around the search bar */
+    }
+
     h1 { text-align: center; }
 
-    /* Styles for text inputs and all buttons */
+    /* Improved styling for text inputs and buttons */
     .stTextInput > div > div > input {
         width: 70%; 
         margin: 20px auto;
@@ -71,6 +75,20 @@ st.markdown("""
         border-radius: 20px; /* Rounded borders for a sleeker look */
         border: 2px solid rgb(220, 220, 220); /* Subtle border styling */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    }
+
+    .stButton > button {
+        width: 70%;
+        margin: 10px auto;
+        display: block;
+        padding: 10px 25px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 500;
+        background: transparent;
+        color: grey;
+        border: 2px solid rgb(220, 220, 220);
+        border-radius: 10px;
+        transition: all 0.3s ease;
     }
 
     /* Hover effects for all buttons */
@@ -88,7 +106,7 @@ st.markdown("""
         border-color: #FF0000;      /* Red border */
     }
 
-    /* Hover effects specifically for the 'Get Recommendations' button */
+    /* Hover effects for the 'Get Recommendations' button */
     .stButton:last-child > button:hover {
         background-color: #C80000;  /* Darker red on hover */
         border-color: #C80000;      /* Darker red border on hover */
