@@ -96,7 +96,7 @@ def movie_id_from_title(movie_title):
 def movie_id_from_title(movie_title):
     query = f"""
             SELECT m.movieId
-            FROM {PROJECT_NAME}.a2.movies m
+            FROM caaych2.mo.movies m
             WHERE m.title = "{movie_title}"
             """
     query_job = client.query(query)
