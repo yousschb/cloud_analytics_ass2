@@ -21,7 +21,6 @@ if 'movie_title_selected' not in st.session_state:
 
 # Main Page Header
 st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender </h1>", unsafe_allow_html=True)
-st.write("## Movie Selection")
 st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
 # Movie Search Input
