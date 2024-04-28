@@ -54,54 +54,16 @@ if st.session_state.get("movie_title_selected"):
     if st.sidebar.button("Get Recommendations", help="Click to get movie recommendations based on your selection"):
         st.switch_page('pages/movie_recommendation.py')
         
-st.markdown(
-    """
-    <style>
-    button[kind="primary"] {
-        padding: 10px 25px;
-        font-family: "Roboto", sans-serif;
-        font-weight: 500;
-        background: transparent;
-        outline: none !important;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        display: inline-block;
-        border: 2px solid rgb(220, 220, 220);
-        z-index: 1;
-        color: grey;
+st.markdown("""
+<style>
+    .stTextInput, .stButton > button {
+        transition: all 0.3s ease-in-out;
+        border-radius: 10px;
     }
-    button[kind="primary"]:hover {
-        text-decoration: none;
-        outline: none !important;
-        color: black !important;
-    }
-    button[kind="primary"]:after {
-        position: absolute;
-        content: "";
-        width: 0;
-        outline: none !important;
-        height: 100%;
-        top: 0;
-        left: 0;
-        direction: rtl;
-        z-index: -1;
-        background: rgb(255, 255, 255);
-        transition: all 0.5s ease;
-    }
-    button[kind="primary"]:hover:after {
-    left: auto;
-    right: 0;
-    outline: none !important;
-    width: 100%;
-    }
-    button[kind="primary"]:hover span {
-        background: black;
-        outline: none !important;
+    .stTextInput:hover, .stButton > button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 </style>
+""", unsafe_allow_html=True)
 
-
-    """,
-    unsafe_allow_html=True,
-)
