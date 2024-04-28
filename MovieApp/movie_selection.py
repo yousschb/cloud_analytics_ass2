@@ -15,21 +15,26 @@ def fetch_flask_data(url_path):
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
 
-# Style personnalisé pour améliorer l'esthétique de la page
+# Improved Page Configuration
+st.set_page_config(page_title="Cinematic Explorer", layout="wide", initial_sidebar_state="expanded")
+
+# Updated Custom Styles
 st.markdown("""
 <style>
-    h1 { text-align: center; }
-    .stTextInput { width: 50%; margin-left: auto; margin-right: auto; }
-    .stButton>button { width: 100%; margin: 5px 0; }
-    .css-18e3th9 { padding: 1rem; }
+    h1 { text-align: center; color: #0083B8; }
+    .stTextInput { width: 70%; margin: 10px auto; }
+    .stButton > button { width: 90%; margin: 10px auto; background-color: #0083B8; color: white; }
+    .css-18e3th9 { padding: 1.5rem; }
+    .stButton > button:hover { background-color: #005f73; }
 </style>
 """, unsafe_allow_html=True)
 
-# Beau titre avec une meilleure typographie
-st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender </h1>", unsafe_allow_html=True)
+# Elegant Title Display
+st.markdown("<h1 style='text-align: center; font-size: 3.5rem;'>Cinematic Explorer</h1>", unsafe_allow_html=True)
 
-st.write("## Movie Selection")
-st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
+# Centralized Movie Search Bar
+st.write("## Explore and Select Movies")
+st.write("Discover your next favorite movie. Start by typing below:")
 
 # Champ de recherche centré avec autocomplete
 movies_query = st.text_input("", placeholder="Type to search for movies...")
