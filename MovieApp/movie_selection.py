@@ -19,9 +19,18 @@ def fetch_flask_data(url_path):
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
 
-# Main Page Header
-st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender </h1>", unsafe_allow_html=True)
-st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
+# Main Page Header with added spacing via HTML
+st.markdown("""
+<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender</h1>
+<br>  <!-- HTML line break for extra space -->
+""", unsafe_allow_html=True)
+
+# Additional space before the introductory text
+st.markdown("""
+<p style='text-align: center; margin-top: 20px;'>
+    Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.
+</p>
+""", unsafe_allow_html=True)
 
 # Movie Search Input
 movies_query = st.text_input("", placeholder="Type to search for movies...")
