@@ -14,7 +14,7 @@ if "movie_id" not in st.session_state:
     st.session_state['movie_id'] = list()
 
 
-def get_data_from_flask(url_path):
+def fetch_flask_data(url_path):
     base_url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app"
     if not url_path.startswith('/'):
         url_path = '/' + url_path
@@ -32,7 +32,7 @@ def get_data_from_flask(url_path):
 
 
 def get_title_from_id(id):
-    df = pd.DataFrame(get_data_from_flask("title_from_movie_id/" + str(id)), columns = ["title"])
+    df = pd.DataFrame(fetch_flask_data("title_from_movie_id/" + str(id)), columns = ["title"])
     return df
 
 
@@ -72,7 +72,7 @@ else:
 
 if st.session_state['movie_title_selected']:
     for movie_title in st.session_state['movie_title_selected']:
-        df = pd.DataFrame(get_data_from_flask("movie_id_from_title/" + movie_title), columns = ["movieId"])
+        df = pd.DataFrame(fetch_flask_data("movie_id_from_title/" + movie_title), columns = ["movieId"])
         for movie_id in df['movieId']:
             if movie_id not in st.session_state['movie_id']:
                 st.session_state['movie_id'].append(movie_id)
@@ -89,7 +89,7 @@ if st.session_state['movie_title_selected']:
 
 # rating df
     if 'ratings' not in st.session_state:
-        ratings = pd.DataFrame(get_data_from_flask("ratings"), 
+        ratings = pd.DataFrame(fetch_flask_data("ratings"), 
                                 columns=['userId', 'movieId', 'rating_im'])
         st.session_state['ratings'] = ratings
 
@@ -106,7 +106,7 @@ if st.session_state['movie_title_selected']:
     most_5_similar_users = [index + 1 for index in similarity.argsort()[0][-5:][::-1]]
 
 # Recommendations
-    df = pd.DataFrame(get_data_from_flask("recommendations/" + str(most_5_similar_users[0]) + "," + 
+    df = pd.DataFrame(fetch_flask_data("recommendations/" + str(most_5_similar_users[0]) + "," + 
                         str(most_5_similar_users[1]) + "," + str(most_5_similar_users[2]) + 
                         "," + str(most_5_similar_users[3]) + "," + str(most_5_similar_users[4])), 
                         columns = ['userId', 'movieId', 'predicted_rating_im_confidence'])
@@ -132,7 +132,7 @@ if st.session_state['movie_title_selected']:
 
     for movie_id in five_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
-            tmdb_id = get_data_from_flask("tmdb_id/" + str(movie_id))
+            tmdb_id = fetch_flask_data("tmdb_id/" + str(movie_id))
             with st.expander(f"{get_title_from_id(movie_id)['title'][0]}"):
                 display_info(tmdb_id["tmdbId"]["0"])
 
