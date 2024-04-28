@@ -7,7 +7,7 @@ MOVIE = "https://api.themoviedb.org/3/movie/"
 st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
 
 
-def get_data_from_flask(url_path):
+def fetch_flask_data(url_path):
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
     return response.json()
@@ -35,7 +35,7 @@ st.write("Search for a movie title below and select from the autocomplete sugges
 movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
     st.write("### Results (Click To Select):")
-    autocomplete_results = get_data_from_flask(f"elastic_search/{movies_query}")
+    autocomplete_results = fetch_flask_data(f"elastic_search/{movies_query}")
     if autocomplete_results:
         for i in autocomplete_results:
             button_key = f"select_{i}"
