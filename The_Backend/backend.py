@@ -7,8 +7,8 @@ import os
 # Configurations for project and keys
 PROJECT_ID = "caaych2"
 GOOGLE_CLOUD_KEY_PATH = 'caaych2-1324a5d22551.json'
-ELASTIC_ENDPOINT = "https://6f8402e9b7ae48f6ad05fb7037960f8a.europe-west9.gcp.elastic-cloud.com:443"
-ELASTIC_API_KEY = "ODhqUDJJNEJFZjlFU080SWh3VFA6YlQyLUM3WENSbk9CSHJTTnBCRW1RZw=="
+ELASTIC_ENDPOINT = "https://6f8402e9b7ae48f6ad05fb7037960f8a.europe-west9.gcp.elastic-cloud.com:443" #TO MODIFY
+ELASTIC_API_KEY = "ODhqUDJJNEJFZjlFU080SWh3VFA6YlQyLUM3WENSbk9CSHJTTnBCRW1RZw==" #TO MODIFY
 INDEX_NAME = "index_of_movies"
 
 # Setting environment variables for Google Cloud and Elasticsearch
