@@ -4,9 +4,6 @@ import pandas as pd
 API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
 MOVIE = "https://api.themoviedb.org/3/movie/"
 
-st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
-
-
 def fetch_flask_data(url_path):
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
