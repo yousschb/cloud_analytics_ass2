@@ -99,7 +99,7 @@ def movie_id_from_title(movie_title):
             FROM caaych2.mo.movies m
             WHERE m.title = "{movie_title}"
             """
-    query_job = client.query(query)
+    query_job = bigquery_client.query(query)
     results = query_job.to_dataframe()
     return results.to_json()
 
