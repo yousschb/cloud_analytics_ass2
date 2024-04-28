@@ -62,18 +62,15 @@ st.markdown("""
     h1 { text-align: center; }
 
     /* Styles for text inputs and all buttons */
-    .stTextInput, .stButton > button {
+    .stTextInput > div > div > input {
         width: 70%; 
-        margin: auto;
-        display: block;
+        margin: 20px auto;
         padding: 10px 25px;
         font-family: 'Roboto', sans-serif;
-        font-weight: 500;
-        background: transparent;
-        color: grey;
-        border: 2px solid rgb(220, 220, 220);
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        font-size: 16px; /* Adjusted font size for better readability */
+        border-radius: 20px; /* Rounded borders for a sleeker look */
+        border: 2px solid rgb(220, 220, 220); /* Subtle border styling */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
     }
 
     /* Hover effects for all buttons */
