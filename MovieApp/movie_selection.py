@@ -4,6 +4,9 @@ import pandas as pd
 API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
 MOVIE = "https://api.themoviedb.org/3/movie/"
 
+st.set_page_config(page_title="Movie Recommendation", layout="wide", initial_sidebar_state="expanded")
+
+
 def fetch_flask_data(url_path):
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
@@ -12,37 +15,33 @@ def fetch_flask_data(url_path):
 if 'movie_title_selected' not in st.session_state:
     st.session_state['movie_title_selected'] = list()
 
-# Improved Page Configuration
-st.set_page_config(page_title="Cinematic Explorer", layout="wide", initial_sidebar_state="expanded")
-
-# Updated Custom Styles
+# Style personnalisé pour améliorer l'esthétique de la page
 st.markdown("""
 <style>
-    h1 { text-align: center; color: #0083B8; }
-    .stTextInput { width: 70%; margin: 10px auto; }
-    .stButton > button { width: 90%; margin: 10px auto; background-color: #0083B8; color: white; }
-    .css-18e3th9 { padding: 1.5rem; }
-    .stButton > button:hover { background-color: #005f73; }
+    h1 { text-align: center; }
+    .stTextInput { width: 50%; margin-left: auto; margin-right: auto; }
+    .stButton>button { width: 100%; margin: 5px 0; }
+    .css-18e3th9 { padding: 1rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# Elegant Title Display
-st.markdown("<h1 style='text-align: center; font-size: 3.5rem;'>Cinematic Explorer</h1>", unsafe_allow_html=True)
+# Beau titre avec une meilleure typographie
+st.markdown("<h1 style='text-align: center; font-size: 3rem; color: #FF0000;'>Movie Recommender </h1>", unsafe_allow_html=True)
 
-# Centralized Movie Search Bar
-st.write("## Explore and Select Movies")
-st.write("Discover your next favorite movie. Start by typing below:")
+st.write("## Movie Selection")
+st.write("Search for a movie title below and select from the autocomplete suggestions to add to your watchlist.")
 
-# Movie search with autocomplete suggestions
-movies_query = st.text_input("", placeholder="Begin typing to search...")
+# Champ de recherche centré avec autocomplete
+movies_query = st.text_input("", placeholder="Type to search for movies...")
 if movies_query:
-    st.write("### Select a Movie:")
+    st.write("### Results (Click To Select):")
     autocomplete_results = fetch_flask_data(f"elastic_search/{movies_query}")
-    for movie_title in autocomplete_results:
-        select_key = f"select_{movie_title}"
-        if st.button(movie_title, key=select_key):
-            if movie_title not in st.session_state.get('movie_title_selected', []):
-                st.session_state['movie_title_selected'].append(movie_title)
+    if autocomplete_results:
+        for i in autocomplete_results:
+            button_key = f"select_{i}"
+            if st.button(i, key=button_key):
+                if i not in st.session_state.get('movie_title_selected', []):
+                    st.session_state['movie_title_selected'].append(i)
 
 
 # Affichage esthétique des films sélectionnés dans la barre latérale
