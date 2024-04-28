@@ -59,12 +59,12 @@ if st.sidebar.button("Get Recommendations", help="Click to get movie recommendat
 st.markdown("""
 <style>
     body {
-        background-color: #f0f2f6; /* Matching the grey around the search bar */
+        background-color: #f0f2f6; /* Couleur de fond assortie autour de la barre de recherche */
     }
 
     h1 { text-align: center; }
 
-    /* Improved styling for text inputs */
+    /* Amélioration du style pour les entrées de texte */
     .stTextInput > div > div > input {
         width: 70%; 
         margin: 20px auto;
@@ -76,7 +76,7 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    /* Specific styles for result buttons under the search bar */
+    /* Styles spécifiques pour les boutons de résultats sous la barre de recherche */
     .stButton > button {
         width: 70%;
         margin: 10px auto;
@@ -84,30 +84,30 @@ st.markdown("""
         padding: 10px 25px;
         font-family: 'Roboto', sans-serif;
         font-weight: 500;
-        background: transparent;
-        color: black;
-        border: 2px solid #FF0000; /* Red border for buttons under search */
+        background-color: black; /* Fond noir */
+        color: white; /* Texte blanc */
+        border: 2px solid #FF0000; /* Bordure rouge */
         border-radius: 10px;
         transition: all 0.3s ease;
     }
 
-    /* Hover effects for result buttons under the search bar */
+    /* Effets de survol pour les boutons de résultats sous la barre de recherche */
     .stButton > button:hover {
-        background-color: #FFEEEE; /* Light red background on hover */
-        color: #FF0000; /* Red text color on hover */
+        background-color: #333; /* Fond plus sombre au survol */
+        color: white;
+        border-color: #FF0000; /* Bordure rouge maintenue */
     }
 
-    /* Styles for the sidebar */
+    /* Maintenir les styles existants pour les boutons dans la sidebar */
     .stSidebar .stButton > button {
-        background-color: #FF0000; /* Red background */
-        color: white; /* White text */
-        border-color: #FF0000;
+        background-color: #FF0000; /* Fond rouge */
+        color: white; /* Texte blanc */
+        border-color: #FF0000; /* Bordure rouge */
     }
 
-    /* Hover effects for sidebar buttons */
     .stSidebar .stButton > button:hover {
-        background-color: #C80000; /* Darker red on hover */
-        border-color: #C80000;
+        background-color: #C80000; /* Rouge plus sombre au survol */
+        border-color: #C80000; /* Bordure rouge plus sombre */
     }
 </style>
 """, unsafe_allow_html=True)
