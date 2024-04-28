@@ -84,23 +84,11 @@ def tmdb_id(movie_id):
     query = f"SELECT tmdbId FROM `caaych2.mo.links` WHERE movieId = {movie_id}"
     results = execute_bigquery(query)
     return results.to_json()
-"""
-@app.route('/movie_id_from_title/<movie_title>')
-def movie_id_from_title(movie_title):
-    query = f"SELECT movieId FROM `caaych2.mo.movies` WHERE title = '{movie_title}'"
-    results = execute_bigquery(query)
-    return results.to_json()
-"""
 
 @app.route('/movie_id_from_title/<movie_title>')
 def movie_id_from_title(movie_title):
-    query = f"""
-            SELECT m.movieId
-            FROM caaych2.mo.movies m
-            WHERE m.title = "{movie_title}"
-            """
-    query_job = bigquery_client.query(query)
-    results = query_job.to_dataframe()
+    query = f""" SELECT m.movieId FROM caaych2.mo.movies m WHERE m.title = "{movie_title}" """
+    results = execute_bigquery(query)
     return results.to_json()
 
 
