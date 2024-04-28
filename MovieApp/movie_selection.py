@@ -33,17 +33,16 @@ st.markdown("<h1 style='text-align: center; font-size: 3.5rem;'>Cinematic Explor
 st.write("## Explore and Select Movies")
 st.write("Discover your next favorite movie. Start by typing below:")
 
-# Champ de recherche centré avec autocomplete
-movies_query = st.text_input("", placeholder="Type to search for movies...")
+# Movie search with autocomplete suggestions
+movies_query = st.text_input("", placeholder="Begin typing to search...")
 if movies_query:
-    st.write("### Results (Click To Select):")
+    st.write("### Select a Movie:")
     autocomplete_results = fetch_flask_data(f"elastic_search/{movies_query}")
-    if autocomplete_results:
-        for i in autocomplete_results:
-            button_key = f"select_{i}"
-            if st.button(i, key=button_key):
-                if i not in st.session_state.get('movie_title_selected', []):
-                    st.session_state['movie_title_selected'].append(i)
+    for movie_title in autocomplete_results:
+        select_key = f"select_{movie_title}"
+        if st.button(movie_title, key=select_key):
+            if movie_title not in st.session_state.get('movie_title_selected', []):
+                st.session_state['movie_title_selected'].append(movie_title)
 
 
 # Affichage esthétique des films sélectionnés dans la barre latérale
