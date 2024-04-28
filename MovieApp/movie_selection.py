@@ -50,7 +50,10 @@ if st.sidebar.button("Get Recommendations", help="Click to get movie recommendat
 # Styles
 st.markdown("""
 <style>
+    /* General styles for the page header */
     h1 { text-align: center; }
+
+    /* Styles for text inputs and all buttons */
     .stTextInput, .stButton > button {
         width: 70%; 
         margin: auto;
@@ -64,11 +67,26 @@ st.markdown("""
         border-radius: 10px;
         transition: all 0.3s ease;
     }
+
+    /* Hover effects for all buttons */
     .stButton > button:hover {
         background-color: black;
         color: white;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         transform: scale(1.05);
+    }
+
+    /* Specific styles for the 'Get Recommendations' button */
+    .stButton:last-child > button {
+        background-color: #FF0000;  /* Red background */
+        color: white;               /* White text */
+        border-color: #FF0000;      /* Red border */
+    }
+
+    /* Hover effects specifically for the 'Get Recommendations' button */
+    .stButton:last-child > button:hover {
+        background-color: #C80000;  /* Darker red on hover */
+        border-color: #C80000;      /* Darker red border on hover */
     }
 </style>
 """, unsafe_allow_html=True)
