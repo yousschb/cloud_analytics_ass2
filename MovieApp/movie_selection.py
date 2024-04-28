@@ -39,7 +39,7 @@ if movies_query:
 if st.session_state.get("movie_title_selected"):
     st.sidebar.header("Selected Movies")
     for movie in st.session_state["movie_title_selected"]:
-        if st.sidebar.button(f"Remove: {movie}", key=f"remove_{movie}"):
+        if st.sidebar.button(f"{movie}", key=f"remove_{movie}"):
             st.session_state["movie_title_selected"].remove(movie)
             st.rerun()
 
