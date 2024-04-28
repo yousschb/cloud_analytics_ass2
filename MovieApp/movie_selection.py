@@ -45,7 +45,7 @@ if movies_query:
 
 # Sidebar: Selected Movies Display
 if st.session_state.get("movie_title_selected"):
-    st.sidebar.header("Selected Movies")
+    st.sidebar.header("Selected Movies (click to remove) ")
     for movie in st.session_state["movie_title_selected"]:
         if st.sidebar.button(f"{movie}", key=f"remove_{movie}"):
             st.session_state["movie_title_selected"].remove(movie)
