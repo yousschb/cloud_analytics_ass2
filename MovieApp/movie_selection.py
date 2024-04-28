@@ -58,25 +58,25 @@ if st.sidebar.button("Get Recommendations", help="Click to get movie recommendat
 # Styles
 st.markdown("""
 <style>
-    /* Change the overall background color */
     body {
         background-color: #f0f2f6; /* Matching the grey around the search bar */
     }
 
     h1 { text-align: center; }
 
-    /* Improved styling for text inputs and buttons */
+    /* Improved styling for text inputs */
     .stTextInput > div > div > input {
         width: 70%; 
         margin: 20px auto;
         padding: 10px 25px;
         font-family: 'Roboto', sans-serif;
-        font-size: 16px; /* Adjusted font size for better readability */
-        border-radius: 20px; /* Rounded borders for a sleeker look */
-        border: 2px solid rgb(220, 220, 220); /* Subtle border styling */
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+        font-size: 16px;
+        border-radius: 20px;
+        border: 2px solid rgb(220, 220, 220);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
+    /* Specific styles for result buttons under the search bar */
     .stButton > button {
         width: 70%;
         margin: 10px auto;
@@ -85,31 +85,30 @@ st.markdown("""
         font-family: 'Roboto', sans-serif;
         font-weight: 500;
         background: transparent;
-        color: grey;
-        border: 2px solid rgb(220, 220, 220);
+        color: black;
+        border: 2px solid #FF0000; /* Red border for buttons under search */
         border-radius: 10px;
         transition: all 0.3s ease;
     }
 
-    /* Hover effects for all buttons */
+    /* Hover effects for result buttons under the search bar */
     .stButton > button:hover {
-        background-color: black;
-        color: white;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transform: scale(1.05);
+        background-color: #FFEEEE; /* Light red background on hover */
+        color: #FF0000; /* Red text color on hover */
     }
 
-    /* Specific styles for the 'Get Recommendations' button */
-    .stButton:last-child > button {
-        background-color: #FF0000;  /* Red background */
-        color: white;               /* White text */
-        border-color: #FF0000;      /* Red border */
+    /* Styles for the sidebar */
+    .stSidebar .stButton > button {
+        background-color: #FF0000; /* Red background */
+        color: white; /* White text */
+        border-color: #FF0000;
     }
 
-    /* Hover effects for the 'Get Recommendations' button */
-    .stButton:last-child > button:hover {
-        background-color: #C80000;  /* Darker red on hover */
-        border-color: #C80000;      /* Darker red border on hover */
+    /* Hover effects for sidebar buttons */
+    .stSidebar .stButton > button:hover {
+        background-color: #C80000; /* Darker red on hover */
+        border-color: #C80000;
     }
 </style>
 """, unsafe_allow_html=True)
+
