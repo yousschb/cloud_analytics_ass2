@@ -6,7 +6,7 @@ import os
 
 # Configurations for project and keys
 PROJECT_ID = "caaych2"
-GOOGLE_CLOUD_KEY_PATH = 'caaych2-1324a5d22551.json'
+GOOGLE_CLOUD_KEY_PATH = 'The_Backend/caaych2-1324a5d22551.json'
 ELASTIC_ENDPOINT = "https://ee06bff3a43c4685919c6d0b18f6eb1f.us-central1.gcp.cloud.es.io:443"
 ELASTIC_API_KEY = "TnZldUpvOEJpb2dQVjcxLUgwRHg6SjRwSlMxTV9UUkdYUWh6eHhFeFNLQQ=="
 INDEX_NAME = "index_of_movies"
