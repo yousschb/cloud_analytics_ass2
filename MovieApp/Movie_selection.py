@@ -53,7 +53,7 @@ if st.session_state.get("movie_title_selected"):
 
 # Sidebar: Recommendations Button
 if st.sidebar.button("Get Recommendations", help="Click to get movie recommendations based on your selection"):
-    st.switch_page('pages/movie_recommendation.py')
+    st.switch_page('pages/Movie_recommendation.py')
 
 # Styles
 st.markdown("""
