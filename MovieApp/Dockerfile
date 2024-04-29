@@ -1,3 +1,4 @@
+
 FROM python:3.8-slim
 
 WORKDIR /app
@@ -10,4 +11,4 @@ EXPOSE 8080
 
 ENV NAME World
 
-CMD ["streamlit", "run", "Movie_selection.py", "--server.port=8501", "--server.enableCORS=false"]
+CMD ["streamlit", "run", "Movie_selection.py", "--server.port=$PORT", "--server.enableCORS=false"]
