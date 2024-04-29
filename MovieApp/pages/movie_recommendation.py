@@ -40,15 +40,16 @@ def retrieve_movie_title_by_id(id):
 def present_movie_details(movie_id):
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns(2)
     with col1:
-        st.image("https://image.tmdb.org/t/p/original" + data['poster_path'], width=320)
+        st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
     with col2:
-        st.write(f"**Genres:** {', '.join([genre['name'] for genre in data['genres']])}")
-        st.write(f"**Overview:** {data['overview']}")
-        st.write(f"**Language:** {data['original_language']}")
-        st.write(f"**Release Date:** {data['release_date']}")
-        st.write(f"**Vote Average:** {data['vote_average']}")
+        genres = ", ".join([genre['name'] for genre in data['genres']])
+        st.write(f"Genres: {genres}")
+        st.write(f"Overview: {data['overview']}")
+        st.write(f"Language: {data['original_language']}")
+        st.write(f"Release Date: {data['release_date']}")
+        st.write(f"Vote Average: {data['vote_average']}")
 
 # Process movie selections for recommendations
 if st.session_state['movie_title_selected']:
@@ -88,9 +89,9 @@ if st.session_state['movie_title_selected']:
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
             tmdb_id = fetch_flask_data(f"/tmdb_id/{movie_id}")
-            with st.container():
-                st.image(f"https://image.tmdb.org/t/p/original{retrieve_movie_title_by_id(movie_id)['title'][0]}", width=200)
-                st.write(retrieve_movie_title_by_id(movie_id)['title'][0])
+            title = retrieve_movie_title_by_id(movie_id)['title'][0]
+            with st.expander(f"{title}"):
+                present_movie_details(tmdb_id["tmdbId"]["0"])
 
 # Interaction buttons
 if st.button("Add to Selection"):
