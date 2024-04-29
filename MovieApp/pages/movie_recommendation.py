@@ -33,12 +33,12 @@ def fetch_flask_data(url_path):
     response = requests.get(url)
     return response.json()
 
-def get_title_from_id(id):
+def retrieve_movie_title_by_id(id):
     """Retrieve movie title using movie ID."""
     df = pd.DataFrame(fetch_flask_data("title_from_movie_id/" + str(id)), columns=["title"])
     return df
 
-def display_info(movie_id):
+def present_movie_details(movie_id):
     """Display information for a specific movie ID."""
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
@@ -92,8 +92,8 @@ if st.session_state['movie_title_selected']:
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
             tmdb_id = fetch_flask_data("tmdb_id/" + str(movie_id))
-            with st.expander(f"{get_title_from_id(movie_id)['title'][0]}"):
-                display_info(tmdb_id["tmdbId"]["0"])
+            with st.expander(f"{retrieve_movie_title_by_id(movie_id)['title'][0]}"):
+                present_movie_details(tmdb_id["tmdbId"]["0"])
 
 # Interaction buttons
 if st.button("Add to Selection"):
