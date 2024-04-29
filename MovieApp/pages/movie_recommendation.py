@@ -109,7 +109,5 @@ if st.session_state['movie_title_selected']:
                 present_movie_details(tmdb_id["tmdbId"]["0"])
 
 # Interaction buttons for the user
-if st.button("Add to Selection"):
-    st.switch_page('movie_selection.py')
 if st.button("Clear Selection", on_click=lambda: st.session_state.pop("movie_title_selected", None)):
     st.switch_page('movie_selection.py')
