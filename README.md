@@ -1,6 +1,5 @@
-Movie Recommender link : https://themovierecomender-gev3pcymxa-uc.a.run.app
+Movie Recommender App : https://themovierecomender-gev3pcymxa-uc.a.run.app
 
-Streamlit app link : https://themovierecommender.streamlit.app/
+Streamlit App : https://themovierecommender.streamlit.app/
 
-Backend link : https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/
-
+Backend  : https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/
