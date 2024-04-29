@@ -27,21 +27,11 @@ if st.session_state["movie_title_selected"]:
 else:
     st.write("You have not selected any movies yet.")
 
-# Define functions to fetch and display data
+# Function to fetch data from Flask backend
 def fetch_flask_data(url_path):
-    """Fetch data from Flask backend."""
-    base_url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app"
-    url = f"{base_url}{url_path if url_path.startswith('/') else '/' + url_path}"
+    url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app/" + url_path
     response = requests.get(url)
-    if response.status_code == 200:
-        try:
-            return response.json()
-        except ValueError:
-            st.error("Invalid JSON response")
-            return None
-    else:
-        st.error(f"Failed to fetch data: HTTP status code {response.status_code}")
-        return None
+    return response.json()
 
 def get_title_from_id(id):
     """Retrieve movie title using movie ID."""
