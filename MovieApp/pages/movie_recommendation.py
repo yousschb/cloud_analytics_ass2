@@ -35,7 +35,7 @@ def fetch_flask_data(url_path):
     response = requests.get(url)
     
 
-def get_title_from_id(id):
+def title_from_id(id):
     """Retrieve movie title using movie ID."""
     df = pd.DataFrame(fetch_flask_data("title_from_movie_id/" + str(id)), columns=["title"])
     return df
@@ -94,7 +94,7 @@ if st.session_state['movie_title_selected']:
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
             tmdb_id = fetch_flask_data("tmdb_id/" + str(movie_id))
-            with st.expander(f"{get_title_from_id(movie_id)['title'][0]}"):
+            with st.expander(f"{title_from_id(movie_id)['title'][0]}"):
                 display_info(tmdb_id["tmdbId"]["0"])
 
 # Interaction buttons
