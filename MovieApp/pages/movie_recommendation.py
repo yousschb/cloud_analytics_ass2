@@ -29,27 +29,31 @@ else:
 
 # Fetch data from Flask backend
 def fetch_flask_data(url_path):
+    """Fetch data from the Flask backend"""
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app" + url_path
     response = requests.get(url)
     return response.json()
 
 def retrieve_movie_title_by_id(id):
+    """Retrieve and display the movie title by ID"""
     df = pd.DataFrame(fetch_flask_data(f"/title_from_movie_id/{id}"), columns=["title"])
     return df
 
 def present_movie_details(movie_id):
+    """Display detailed information for a specific movie ID."""
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
+    st.write(data['tagline'])
     col1, col2 = st.columns(2)
     with col1:
         st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
     with col2:
         genres = ", ".join([genre['name'] for genre in data['genres']])
-        st.write(f"Genres: {genres}")
-        st.write(f"Overview: {data['overview']}")
-        st.write(f"Language: {data['original_language']}")
-        st.write(f"Release Date: {data['release_date']}")
-        st.write(f"Vote Average: {data['vote_average']}")
+        st.write(f"**Genres:** {genres}")
+        st.write(f"**Overview:** {data['overview']}")
+        st.write(f"**Language:** {data['original_language']}")
+        st.write(f"**Release Date:** {data['release_date']}")
+        st.write(f"**Vote Average:** {data['vote_average']}")
 
 # Process movie selections for recommendations
 if st.session_state['movie_title_selected']:
@@ -86,12 +90,15 @@ if st.session_state['movie_title_selected']:
     my_bar.empty()
     st.write("Based on your selections, we suggest the following movies:")
 
+    # Display recommended movie posters and make them clickable to show details
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
-            tmdb_id = fetch_flask_data(f"/tmdb_id/{movie_id}")
-            title = retrieve_movie_title_by_id(movie_id)['title'][0]
-            with st.expander(f"{title}"):
-                present_movie_details(tmdb_id["tmdbId"]["0"])
+            movie_details = fetch_flask_data(f"/tmdb_id/{movie_id}")
+            movie_title = retrieve_movie_title_by_id(movie_id)['title'][0]
+            movie_poster_url = f"https://image.tmdb.org/t/p/original{movie_details['poster_path']}"
+            with st.expander(f"Click to see details for {movie_title}"):
+                st.image(movie_poster_url, use_column_width=True)
+                present_movie_details(movie_id)
 
 # Interaction buttons
 if st.button("Add to Selection"):
