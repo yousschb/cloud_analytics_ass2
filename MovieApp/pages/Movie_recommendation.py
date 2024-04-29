@@ -110,4 +110,4 @@ if st.session_state['movie_title_selected']:
 
 # Interaction buttons for the user
 if st.button("Clear Selection", on_click=lambda: st.session_state.pop("movie_title_selected", None)):
-    st.switch_page('movie_selection.py')
+    st.switch_page('Movie_selection.py')
