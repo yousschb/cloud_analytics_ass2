@@ -29,32 +29,26 @@ else:
 
 # Fetch data from Flask backend
 def fetch_flask_data(url_path):
-    """ Fetch data from the Flask backend """
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app" + url_path
     response = requests.get(url)
     return response.json()
 
-# Present movie information
 def retrieve_movie_title_by_id(id):
-    """ Retrieve and display the movie title by ID """
     df = pd.DataFrame(fetch_flask_data(f"/title_from_movie_id/{id}"), columns=["title"])
     return df
 
 def present_movie_details(movie_id):
-    """Display information for a specific movie ID."""
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
-    st.write(data['tagline'])
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 3])
     with col1:
-        st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
+        st.image("https://image.tmdb.org/t/p/original" + data['poster_path'], width=320)
     with col2:
-        genres = ", ".join([genre['name'] for genre in data['genres']])
-        st.write(f"Genres: {genres}")
-        st.write(f"Overview: {data['overview']}")
-        st.write(f"Language: {data['original_language']}")
-        st.write(f"Release Date: {data['release_date']}")
-        st.write(f"Vote Average: {data['vote_average']}")
+        st.write(f"**Genres:** {', '.join([genre['name'] for genre in data['genres']])}")
+        st.write(f"**Overview:** {data['overview']}")
+        st.write(f"**Language:** {data['original_language']}")
+        st.write(f"**Release Date:** {data['release_date']}")
+        st.write(f"**Vote Average:** {data['vote_average']}")
 
 # Process movie selections for recommendations
 if st.session_state['movie_title_selected']:
@@ -94,8 +88,9 @@ if st.session_state['movie_title_selected']:
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
             tmdb_id = fetch_flask_data(f"/tmdb_id/{movie_id}")
-            with st.expander(f"{retrieve_movie_title_by_id(movie_id)['title'][0]}"):
-                present_movie_details(tmdb_id["tmdbId"]["0"])
+            with st.container():
+                st.image(f"https://image.tmdb.org/t/p/original{retrieve_movie_title_by_id(movie_id)['title'][0]}", width=200)
+                st.write(retrieve_movie_title_by_id(movie_id)['title'][0])
 
 # Interaction buttons
 if st.button("Add to Selection"):
