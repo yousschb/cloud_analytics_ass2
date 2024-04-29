@@ -1,8 +1,9 @@
-import streamlit as st
+ import streamlit as st
 import pandas as pd
 import requests
 import time
 from sklearn.metrics.pairwise import cosine_similarity
+from urllib.parse import quote
 
 # Constants for TMDB
 API_KEY = "?api_key=c1cf246019092e64d25ae5e3f25a3933"
@@ -28,45 +29,49 @@ else:
 
 # Fetch data from Flask backend
 def fetch_flask_data(url_path):
+    """ Fetch data from the Flask backend """
     url = "https://cloud-analytics-ass213-gev3pcymxa-uc.a.run.app" + url_path
     response = requests.get(url)
     return response.json()
 
+# Present movie information
 def retrieve_movie_title_by_id(id):
+    """ Retrieve and display the movie title by ID """
     df = pd.DataFrame(fetch_flask_data(f"/title_from_movie_id/{id}"), columns=["title"])
-    return df.iloc[0]['title'] if not df.empty else "Unknown Title"
+    return df
 
 def present_movie_details(movie_id):
+    """Display information for a specific movie ID."""
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
+    st.write(data['tagline'])
     col1, col2 = st.columns(2)
     with col1:
-        if 'poster_path' in data and data['poster_path']:
-            st.image("https://image.tmdb.org/t/p/original" + data['poster_path'], width=320)
-        else:
-            st.error("Poster not available")
+        st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
     with col2:
-        st.write(f"**Tagline:** {data.get('tagline', 'Not available')}")
-        st.write(f"**Genres:** {', '.join([genre['name'] for genre in data.get('genres', [])])}")
-        st.write(f"**Overview:** {data.get('overview', 'No overview provided')}")
-        st.write(f"**Language:** {data.get('original_language', 'Unknown')}")
-        st.write(f"**Release Date:** {data.get('release_date', 'Not specified')}")
-        st.write(f"**Vote Average:** {data.get('vote_average', 'Not rated')}")
+        genres = ", ".join([genre['name'] for genre in data['genres']])
+        st.write(f"Genres: {genres}")
+        st.write(f"Overview: {data['overview']}")
+        st.write(f"Language: {data['original_language']}")
+        st.write(f"Release Date: {data['release_date']}")
+        st.write(f"Vote Average: {data['vote_average']}")
 
-# Recommendations and Details
+# Process movie selections for recommendations
 if st.session_state['movie_title_selected']:
     for movie_title in st.session_state['movie_title_selected']:
         df = pd.DataFrame(fetch_flask_data(f"/movie_id_from_title/{movie_title}"), columns=["movieId"])
-        st.session_state['movie_id'].extend(df['movieId'].tolist())
+        for movie_id in df['movieId']:
+            if movie_id not in st.session_state['movie_id']:
+                st.session_state['movie_id'].append(movie_id)
 
-    new_user_movie_id_list = list(set(st.session_state['movie_id']))  # Ensure unique IDs
+    new_user_movie_id_list = [id for id in st.session_state['movie_id']]
 
     if 'ratings' not in st.session_state:
         ratings = pd.DataFrame(fetch_flask_data("/ratings"), columns=['userId', 'movieId', 'rating_im'])
         st.session_state['ratings'] = ratings
 
-    user_matrix = st.session_state['ratings'].pivot_table(index='userId', columns='movieId', values='rating_im').fillna(0)
-    new_user_row = pd.DataFrame(0, index=[user_matrix.index.max() + 1], columns=user_matrix.columns)
+    user_matrix = st.session_state['ratings'].pivot(index='userId', columns='movieId', values='rating_im').fillna(0)
+    new_user_row = pd.DataFrame(0, index=[user_matrix.index[-1] + 1], columns=user_matrix.columns)
     new_user_row.loc[:, new_user_movie_id_list] = 1
     similarity = cosine_similarity(new_user_row, user_matrix)
 
@@ -76,16 +81,25 @@ if st.session_state['movie_title_selected']:
     recommended_movies = recommendations[~recommendations['movieId'].isin(st.session_state['movie_id'])]
     top_movies = recommended_movies.drop_duplicates(subset=['movieId'], keep="first").head(8)
 
+    # Show progress and recommendations
+    progress_text = "Compiling your personalized recommendations..."
+    my_bar = st.progress(0)
+    for percent_complete in range(100):
+        time.sleep(0.05)
+        my_bar.progress(percent_complete + 1)
+    time.sleep(1)
+    my_bar.empty()
     st.write("Based on your selections, we suggest the following movies:")
+
     for movie_id in top_movies['movieId']:
         if movie_id not in st.session_state['movie_title_selected']:
             tmdb_id = fetch_flask_data(f"/tmdb_id/{movie_id}")
-            movie_title = retrieve_movie_title_by_id(movie_id)
-            with st.expander(f"Details for {movie_title}"):
-                present_movie_details(tmdb_id["tmdbId"])
+            with st.expander(f"{retrieve_movie_title_by_id(movie_id)['title'][0]}"):
+                present_movie_details(tmdb_id["tmdbId"]["0"])
 
 # Interaction buttons
 if st.button("Add to Selection"):
     st.switch_page('movie_selection.py')
-if st.button("Clear Selection"):
-    st.session_state.pop("movie_title_selected", None)
+
+if st.button("Clear Selection", on_click=lambda: st.session_state.pop("movie_title_selected", None)):
+    st.switch_page('movie_selection.py')
