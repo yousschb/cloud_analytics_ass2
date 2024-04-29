@@ -34,7 +34,6 @@ def fetch_flask_data(url_path):
     response = requests.get(url)
     return response.json()
 
-# Present movie information
 def retrieve_movie_title_by_id(id):
     """ Retrieve and display the movie title by ID """
     df = pd.DataFrame(fetch_flask_data(f"/title_from_movie_id/{id}"), columns=["title"])
