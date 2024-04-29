@@ -41,19 +41,20 @@ def retrieve_movie_title_by_id(id):
     return df
 
 def present_movie_details(movie_id):
-    """ Display detailed information for a given movie ID """
+    """Display information for a specific movie ID."""
     response = requests.get(MOVIE + str(movie_id) + API_KEY)
     data = response.json()
-    st.write(f"**Tagline:** {data['tagline']}")
+    st.write(data['tagline'])
     col1, col2 = st.columns(2)
     with col1:
-        st.image(data['poster_path'], width=320)
+        st.image("https://image.tmdb.org/t/p/original/" + data['poster_path'], width=320)
     with col2:
-        st.write(f"**Genres:** {', '.join([genre['name'] for genre in data['genres']])}")
-        st.write(f"**Overview:** {data['overview']}")
-        st.write(f"**Language:** {data['original_language']}")
-        st.write(f"**Release Date:** {data['release_date']}")
-        st.write(f"**Vote Average:** {data['vote_average']}")
+        genres = ", ".join([genre['name'] for genre in data['genres']])
+        st.write(f"Genres: {genres}")
+        st.write(f"Overview: {data['overview']}")
+        st.write(f"Language: {data['original_language']}")
+        st.write(f"Release Date: {data['release_date']}")
+        st.write(f"Vote Average: {data['vote_average']}")
 
 # Process movie selections for recommendations
 if st.session_state['movie_title_selected']:
