@@ -10,4 +10,4 @@ EXPOSE 8501
 
 ENV NAME World
 
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+CMD ["streamlit", "run", "Movie_selection.py", "--server.port=8501", "--server.enableCORS=false"]
